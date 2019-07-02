@@ -87,9 +87,9 @@ const char *Offboard::result_str(Result result)
 
 bool operator==(const Offboard::ActuatorControl &lhs, const Offboard::ActuatorControl &rhs)
 {
-    if (lhs.actuator_group != rhs.actuator_group)
+    if (lhs.num_actuators != rhs.num_actuators)
         return false;
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < lhs.num_actuators; i++)
         if (lhs.actuator_values[i] != rhs.actuator_values[i])
             return false;
     return true;
@@ -97,15 +97,28 @@ bool operator==(const Offboard::ActuatorControl &lhs, const Offboard::ActuatorCo
 
 std::ostream &operator<<(std::ostream &str, Offboard::ActuatorControl const &actuator_control)
 {
-    return str << "[group: " << actuator_control.actuator_group
-               << ", Command port 0: " << actuator_control.actuator_values[0]
-               << ", Command port 1: " << actuator_control.actuator_values[1]
-               << ", Command port 2: " << actuator_control.actuator_values[2]
-               << ", Command port 3: " << actuator_control.actuator_values[3]
-               << ", Command port 4: " << actuator_control.actuator_values[4]
-               << ", Command port 5: " << actuator_control.actuator_values[5]
-               << ", Command port 6: " << actuator_control.actuator_values[6]
-               << ", Command port 7: " << actuator_control.actuator_values[7] << "]";
+    if (!actuator_control.num_actuators)
+        return str << "[]";
+
+    int num_groups = actuator_control.num_actuators / Offboard::ActuatorControl::NUM_ACTUATORS_IN_GROUP + 1;
+    int actuator = 0;
+
+    str << "[";
+
+    for (int group = 0; group < num_groups; group++) {
+        str << "group: " << group;
+        for (; actuator < actuator_control.num_actuators; actuator++) {
+            str << ", Command port " << actuator % Offboard::ActuatorControl::NUM_ACTUATORS_IN_GROUP << ": "
+                << actuator_control.actuator_values[actuator];
+        }
+        if (group < (num_groups - 1)) {
+            str << "; ";
+        }
+    }
+
+    str << "]";
+
+    return str;
 }
 
 bool operator==(const Offboard::Attitude &lhs, const Offboard::Attitude &rhs)

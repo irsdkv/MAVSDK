@@ -140,15 +140,12 @@ public:
      * (https://github.com/PX4/Firmware/blob/v1.9.0/src/modules/mavlink/mavlink_receiver.cpp#L980).
      */
     struct ActuatorControl {
-        enum ActuatorGroup {
-            FLIGHT_CONTROL = 0, /**< @brief Control Group #0 (Flight Control). */
-            FLIGHT_CONTROL_VTOL = 1, /**< @brief Control Group #1 (Flight Control VTOL/Alternate). */
-            GIMBAL = 2, /**< @brief Control Group #2 (Gimbal). */
-            MANUAL_PASSTHROUGH = 3, /**< @brief Control Group #3 (Manual Passthrough). */
-        };
+        static constexpr int NUM_ACTUATORS_IN_GROUP = 8; /**< @brief Number of actuator's values in group. */
+        static constexpr int NUM_ACTUATORS_GROUP_MAX = 4; /**< @brief Max number of actuator's group. */
+        static constexpr int NUM_ACTUATORS_MAX = NUM_ACTUATORS_IN_GROUP * NUM_ACTUATORS_GROUP_MAX; /**< @brief Max number of actuator's values in array. */
 
-        ActuatorGroup actuator_group; /**< @brief Actuator group. */
-        float actuator_values[8]; /**< @brief Actuator values array. */
+        std::array<float, NUM_ACTUATORS_MAX> actuator_values; /**< @brief Actuator values array. */
+        int num_actuators; /**< @brief Number of valid actuator's values in array. */
     };
 
     /**

@@ -514,20 +514,32 @@ void OffboardImpl::send_attitude_rate()
 void OffboardImpl::send_actuator_control()
 {
     _mutex.lock();
-    const Offboard::ActuatorControl actuator_control = _actuator_control;
+    Offboard::ActuatorControl actuator_control = _actuator_control;
     _mutex.unlock();
 
-    mavlink_message_t message;
-    mavlink_msg_set_actuator_control_target_pack(
-        _parent->get_own_system_id(),
-        _parent->get_own_component_id(),
-        &message,
-        static_cast<uint32_t>(_parent->get_time().elapsed_s() * 1e3),
-        actuator_control.actuator_group,
-        _parent->get_system_id(),
-        _parent->get_autopilot_id(),
-        actuator_control.actuator_values);
-    _parent->send_message(message);
+    if (!actuator_control.num_actuators)
+        return;
+
+    int num_groups = actuator_control.num_actuators / Offboard::ActuatorControl::NUM_ACTUATORS_IN_GROUP + 1;
+    int heel = Offboard::ActuatorControl::NUM_ACTUATORS_IN_GROUP * num_groups - actuator_control.num_actuators;
+
+    ::memset(&actuator_control.actuator_values[actuator_control.num_actuators],
+            0,
+             heel * sizeof(actuator_control.actuator_values[0]));
+
+    for (int group = 0; group < num_groups; group++) {
+        mavlink_message_t message;
+        mavlink_msg_set_actuator_control_target_pack(
+                _parent->get_own_system_id(),
+                _parent->get_own_component_id(),
+                &message,
+                static_cast<uint32_t>(_parent->get_time().elapsed_s() * 1e3),
+                group,
+                _parent->get_system_id(),
+                _parent->get_autopilot_id(),
+                &actuator_control.actuator_values[group * Offboard::ActuatorControl::NUM_ACTUATORS_IN_GROUP]);
+        _parent->send_message(message);
+    }
 }
 
 void OffboardImpl::process_heartbeat(const mavlink_message_t &message)

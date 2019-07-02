@@ -77,10 +77,9 @@ public:
     {
         mavsdk::Offboard::ActuatorControl actuator_control = {};
 
-        actuator_control.actuator_group =
-            static_cast<mavsdk::Offboard::ActuatorControl::ActuatorGroup>(rpc_actuator_control.actuator_group());
-
-        int len = std::min(8, rpc_actuator_control.actuator_values_size());
+        int len = std::min(static_cast<int>(mavsdk::Offboard::ActuatorControl::NUM_ACTUATORS_MAX),
+                           rpc_actuator_control.actuator_values_size());
+        actuator_control.num_actuators = len;
         for (int i = 0; i < len; i++) {
             // https://developers.google.com/protocol-buffers/docs/reference/cpp/google.protobuf.repeated_field#
             actuator_control.actuator_values[i] = rpc_actuator_control.actuator_values(i);
