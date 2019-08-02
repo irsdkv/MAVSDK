@@ -25,6 +25,7 @@ static void print_gps_info(Telemetry::GPSInfo gps_info);
 static void print_battery(Telemetry::Battery battery);
 static void print_rc_status(Telemetry::RCStatus rc_status);
 static void print_position_velocity_ned(Telemetry::PositionVelocityNED position_velocity_ned);
+static void print_actuator_control_target(Telemetry::ActuatorControlTarget actuator_control_target);
 
 static bool _set_rate_error = false;
 static bool _received_position = false;
@@ -43,6 +44,7 @@ static bool _received_gps_info = false;
 static bool _received_battery = false;
 static bool _received_rc_status = false;
 static bool _received_position_velocity_ned = false;
+static bool _received_actuator_control_target = false;
 
 TEST_F(SitlTest, TelemetryAsync)
 {
@@ -92,6 +94,9 @@ TEST_F(SitlTest, TelemetryAsync)
     telemetry->set_rate_battery_async(10.0, std::bind(&receive_result, _1));
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
+    telemetry->set_rate_actuator_control_target_async(10.0, std::bind(&receive_result, _1));
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
     telemetry->position_async(std::bind(&print_position, _1));
 
     telemetry->home_position_async(std::bind(&print_home_position, _1));
@@ -122,6 +127,7 @@ TEST_F(SitlTest, TelemetryAsync)
 
     telemetry->position_velocity_ned_async(std::bind(&print_position_velocity_ned, _1));
 
+    telemetry->actuator_control_target_async(std::bind(&print_actuator_control_target, _1));
     std::this_thread::sleep_for(std::chrono::seconds(10));
 
     EXPECT_FALSE(_set_rate_error);
@@ -141,6 +147,7 @@ TEST_F(SitlTest, TelemetryAsync)
     EXPECT_TRUE(_received_battery);
     // EXPECT_TRUE(_received_rc_status); // No RC is sent in SITL.
     EXPECT_TRUE(_received_position_velocity_ned);
+    // EXPECT_TRUE(_received_actuator_control_target); TODO check
 }
 
 void receive_result(Telemetry::Result result)
@@ -274,4 +281,19 @@ void print_position_velocity_ned(Telemetry::PositionVelocityNED position_velocit
               << std::endl;
 
     _received_position_velocity_ned = true;
+}
+
+static void print_actuator_control_target(Telemetry::ActuatorControlTarget actuator_control_target)
+{
+    std::cout << "Group:  " << static_cast<int>(actuator_control_target.group) << ", Controls: [";
+    for (int i = 0; i < 8; i++) {
+        std::cout << actuator_control_target.controls[i];
+        if (i != 7) {
+            std::cout << ", ";
+        } else {
+            std::cout << "]" << std::endl;
+        }
+    }
+
+    _received_actuator_control_target = true;
 }

@@ -249,7 +249,15 @@ public:
         bool available_once; /**< @brief true if an RC signal has been available once. */
         bool available; /**< @brief true if the RC signal is available now. */
         float signal_strength_percent; /**< @brief Signal strength as a percentage (range: 0 to
-                                          100). */
+                                  100). */
+    };
+
+    /**
+     * @brief TODO
+     */
+    struct ActuatorControlTarget {
+        uint8_t group; /**< @brief TODO */
+        float controls[8]; /**< @brief TODO */
     };
 
     /**
@@ -390,6 +398,16 @@ public:
     Result set_rate_rc_status(double rate_hz);
 
     /**
+     * @brief TODO
+     *
+     * @note TODO
+     *
+     * @param TODO
+     * @return TODO
+     */
+    Result set_rate_actuator_control_target(double rate_hz);
+
+    /**
      * @brief Set rate of kinematic (position and velocity) updates (asynchronous).
      *
      * @note To stop sending it completely, use a rate_hz of -1, for default rate use 0.
@@ -498,6 +516,16 @@ public:
      * @param callback Callback to receive request result.
      */
     void set_rate_rc_status_async(double rate_hz, result_callback_t callback);
+
+    /**
+     * @brief TODO
+     *
+     * @note TODO
+     *
+     * @param TODO
+     * @return TODO
+     */
+    void set_rate_actuator_control_target_async(double rate_hz, result_callback_t callback);
 
     /**
      * @brief Get the current kinematic (position and velocity) in NED frame (synchronous).
@@ -626,6 +654,13 @@ public:
      * @return RC status.
      */
     RCStatus rc_status() const;
+
+    /**
+     * @brief TODO
+     *
+     * @return TODO
+     */
+    ActuatorControlTarget actuator_control_target() const;
 
     /**
      * @brief Callback type for kinematic (position and velocity) updates.
@@ -863,6 +898,21 @@ public:
     void rc_status_async(rc_status_callback_t callback);
 
     /**
+     * @brief TODO
+     *
+     * @param TODO
+     */
+    typedef std::function<void(ActuatorControlTarget actuator_control_target)>
+        actuator_control_target_callback_t;
+
+    /**
+     * @brief TODO
+     *
+     * @param TODO
+     */
+    void actuator_control_target_async(actuator_control_target_callback_t callback);
+
+    /**
      * @brief Copy constructor (object is not copyable).
      */
     Telemetry(const Telemetry&) = delete;
@@ -1061,5 +1111,21 @@ std::ostream& operator<<(std::ostream& str, Telemetry::RCStatus const& rc_status
  * @returns A reference to the stream.
  */
 std::ostream& operator<<(std::ostream& str, Telemetry::StatusText const& status_text);
+
+/**
+ * @brief Equal operator to compare two `Telemetry::ActuatorControlTarget` objects.
+ *
+ * @return `true` if items are equal.
+ */
+bool operator==(
+    const Telemetry::ActuatorControlTarget& lhs, const Telemetry::ActuatorControlTarget& rhs);
+
+/**
+ * @brief Stream operator to print information about a `Telemetry::ActuatorControlTarget`.
+ *
+ * @returns A reference to the stream.
+ */
+std::ostream&
+operator<<(std::ostream& str, Telemetry::ActuatorControlTarget const& actuator_control_target);
 
 } // namespace mavsdk

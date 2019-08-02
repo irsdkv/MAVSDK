@@ -440,6 +440,36 @@ public:
         return grpc::Status::OK;
     }
 
+    grpc::Status SubscribeActuatorControlTarget(
+        grpc::ServerContext* /* context */,
+        const mavsdk::rpc::telemetry::SubscribeActuatorControlTargetRequest* /* request */,
+        grpc::ServerWriter<rpc::telemetry::ActuatorControlTargetResponse>* writer) override
+    {
+        std::mutex actuator_control_target_mutex{};
+
+        _telemetry.actuator_control_target_async(
+            [&writer, &actuator_control_target_mutex](
+                mavsdk::Telemetry::ActuatorControlTarget actuator_control_target) {
+                auto rpc_actuator_control_target =
+                    new mavsdk::rpc::telemetry::ActuatorControlTarget();
+                rpc_actuator_control_target->set_group(actuator_control_target.group);
+                for (int i = 0; i < 8; i++) {
+                    rpc_actuator_control_target->add_controls(actuator_control_target.controls[i]);
+                }
+
+                mavsdk::rpc::telemetry::ActuatorControlTargetResponse
+                    rpc_actuator_control_target_response;
+                rpc_actuator_control_target_response.set_allocated_actuator_control_target(
+                    rpc_actuator_control_target);
+
+                std::lock_guard<std::mutex> lock(actuator_control_target_mutex);
+                writer->Write(rpc_actuator_control_target_response);
+            });
+
+        _stop_future.wait();
+        return grpc::Status::OK;
+    }
+
     void stop() { _stop_promise.set_value(); }
 
 private:

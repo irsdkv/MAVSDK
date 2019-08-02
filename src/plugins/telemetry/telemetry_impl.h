@@ -38,6 +38,7 @@ public:
     Telemetry::Result set_rate_gps_info(double rate_hz);
     Telemetry::Result set_rate_battery(double rate_hz);
     Telemetry::Result set_rate_rc_status(double rate_hz);
+    Telemetry::Result set_rate_actuator_control_target(double rate_hz);
 
     void
     set_rate_position_velocity_ned_async(double rate_hz, Telemetry::result_callback_t callback);
@@ -51,6 +52,8 @@ public:
     void set_rate_gps_info_async(double rate_hz, Telemetry::result_callback_t callback);
     void set_rate_battery_async(double rate_hz, Telemetry::result_callback_t callback);
     void set_rate_rc_status_async(double rate_hz, Telemetry::result_callback_t callback);
+    void
+    set_rate_actuator_control_target_async(double rate_hz, Telemetry::result_callback_t callback);
 
     Telemetry::PositionVelocityNED get_position_velocity_ned() const;
     Telemetry::Position get_position() const;
@@ -70,6 +73,7 @@ public:
     Telemetry::Health get_health() const;
     bool get_health_all_ok() const;
     Telemetry::RCStatus get_rc_status() const;
+    Telemetry::ActuatorControlTarget get_actuator_control_target() const;
 
     void position_velocity_ned_async(Telemetry::position_velocity_ned_callback_t& callback);
     void position_async(Telemetry::position_callback_t& callback);
@@ -89,6 +93,7 @@ public:
     void health_async(Telemetry::health_callback_t& callback);
     void health_all_ok_async(Telemetry::health_all_ok_callback_t& callback);
     void rc_status_async(Telemetry::rc_status_callback_t& callback);
+    void actuator_control_target(Telemetry::actuator_control_target_callback_t& callback);
 
     TelemetryImpl(const TelemetryImpl&) = delete;
     TelemetryImpl& operator=(const TelemetryImpl&) = delete;
@@ -115,6 +120,7 @@ private:
     void set_health_magnetometer_calibration(bool ok);
     void set_health_level_calibration(bool ok);
     void set_rc_status(bool available, float signal_strength_percent);
+    void set_actuator_control_target(uint8_t group, const float* controls);
 
     void process_position_velocity_ned(const mavlink_message_t& message);
     void process_global_position_int(const mavlink_message_t& message);
@@ -128,6 +134,7 @@ private:
     void process_heartbeat(const mavlink_message_t& message);
     void process_statustext(const mavlink_message_t& message);
     void process_rc_channels(const mavlink_message_t& message);
+    void process_actuator_control_target(const mavlink_message_t& message);
 
     void receive_param_cal_gyro(MAVLinkParameters::Result result, int value);
     void receive_param_cal_accel(MAVLinkParameters::Result result, int value);
@@ -197,6 +204,9 @@ private:
     mutable std::mutex _rc_status_mutex{};
     Telemetry::RCStatus _rc_status{false, false, 0.0f};
 
+    mutable std::mutex _actuator_control_target_mutex{};
+    Telemetry::ActuatorControlTarget _actuator_control_target{0, {0.0f}};
+
     std::atomic<bool> _hitl_enabled{false};
 
     Telemetry::position_velocity_ned_callback_t _position_velocity_ned_subscription{nullptr};
@@ -217,6 +227,7 @@ private:
     Telemetry::health_callback_t _health_subscription{nullptr};
     Telemetry::health_all_ok_callback_t _health_all_ok_subscription{nullptr};
     Telemetry::rc_status_callback_t _rc_status_subscription{nullptr};
+    Telemetry::actuator_control_target_callback_t _actuator_control_target_subscription{nullptr};
 
     // The ground speed and position are coupled to the same message, therefore, we just use
     // the faster between the two.

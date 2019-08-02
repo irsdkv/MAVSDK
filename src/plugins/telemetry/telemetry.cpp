@@ -65,6 +65,11 @@ Telemetry::Result Telemetry::set_rate_rc_status(double rate_hz)
     return _impl->set_rate_rc_status(rate_hz);
 }
 
+Telemetry::Result Telemetry::set_rate_actuator_control_target(double rate_hz)
+{
+    return _impl->set_rate_actuator_control_target(rate_hz);
+}
+
 void Telemetry::set_rate_position_velocity_ned_async(double rate_hz, result_callback_t callback)
 {
     _impl->set_rate_position_velocity_ned_async(rate_hz, callback);
@@ -118,6 +123,11 @@ void Telemetry::set_rate_battery_async(double rate_hz, result_callback_t callbac
 void Telemetry::set_rate_rc_status_async(double rate_hz, result_callback_t callback)
 {
     _impl->set_rate_rc_status_async(rate_hz, callback);
+}
+
+void Telemetry::set_rate_actuator_control_target_async(double rate_hz, result_callback_t callback)
+{
+    _impl->set_rate_actuator_control_target_async(rate_hz, callback);
 }
 
 Telemetry::PositionVelocityNED Telemetry::position_velocity_ned() const
@@ -210,6 +220,11 @@ Telemetry::RCStatus Telemetry::rc_status() const
     return _impl->get_rc_status();
 }
 
+Telemetry::ActuatorControlTarget Telemetry::actuator_control_target() const
+{
+    return _impl->get_actuator_control_target();
+}
+
 void Telemetry::position_velocity_ned_async(position_velocity_ned_callback_t callback)
 {
     return _impl->position_velocity_ned_async(callback);
@@ -283,6 +298,11 @@ void Telemetry::battery_async(battery_callback_t callback)
 void Telemetry::flight_mode_async(flight_mode_callback_t callback)
 {
     return _impl->flight_mode_async(callback);
+}
+
+void Telemetry::actuator_control_target_async(actuator_control_target_callback_t callback)
+{
+    return _impl->actuator_control_target(callback);
 }
 
 std::string Telemetry::flight_mode_str(FlightMode flight_mode)
@@ -571,6 +591,33 @@ bool operator==(const Telemetry::StatusText& lhs, const Telemetry::StatusText& r
 std::ostream& operator<<(std::ostream& str, Telemetry::StatusText const& status_text)
 {
     return str << "[statustext: " << status_text.text << "]";
+}
+
+bool operator==(
+    const Telemetry::ActuatorControlTarget& lhs, const Telemetry::ActuatorControlTarget& rhs)
+{
+    if (lhs.group != rhs.group)
+        return false;
+    for (int i = 0; i < 8; i++) {
+        if (lhs.controls[i] != rhs.controls[i])
+            return false;
+    }
+    return true;
+}
+
+std::ostream&
+operator<<(std::ostream& str, Telemetry::ActuatorControlTarget const& actuator_control_target)
+{
+    str << "Group:  " << static_cast<int>(actuator_control_target.group) << ", Controls: [";
+    for (int i = 0; i < 8; i++) {
+        str << actuator_control_target.controls[i];
+        if (i != 7) {
+            str << ", ";
+        } else {
+            str << "]";
+        }
+    }
+    return str;
 }
 
 } // namespace mavsdk

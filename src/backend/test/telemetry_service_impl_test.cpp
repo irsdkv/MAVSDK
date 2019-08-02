@@ -41,6 +41,8 @@ using GroundSpeedNed = mavsdk::Telemetry::GroundSpeedNED;
 
 using RcStatus = mavsdk::Telemetry::RCStatus;
 
+using ActuatorControlTarget = mavsdk::Telemetry::ActuatorControlTarget;
+
 class TelemetryServiceImplTest : public ::testing::Test {
 protected:
     virtual void SetUp()
@@ -124,6 +126,13 @@ protected:
         const bool is_available,
         const float signal_strength_percent) const;
     std::future<void> subscribeRcStatusAsync(std::vector<RcStatus>& rc_status_events) const;
+
+    void checkSendsActuatorControlTargetEvents(
+        const std::vector<ActuatorControlTarget>& actuator_control_target_events) const;
+    ActuatorControlTarget
+    createActuatorControlTarget(const uint8_t group, const float* controls) const;
+    std::future<void> subscribeActuatorControlTargetAsync(
+        std::vector<ActuatorControlTarget>& actuator_control_target_events) const;
 
     std::unique_ptr<grpc::Server> _server{};
     std::unique_ptr<TelemetryService::Stub> _stub{};
@@ -1523,6 +1532,32 @@ void TelemetryServiceImplTest::checkSendsRcStatusEvents(
     }
 }
 
+std::future<void> TelemetryServiceImplTest::subscribeActuatorControlTargetAsync(
+    std::vector<ActuatorControlTarget>& actuator_control_target_events) const
+{
+    return std::async(std::launch::async, [&]() {
+        grpc::ClientContext context;
+        mavsdk::rpc::telemetry::SubscribeActuatorControlTargetRequest request;
+        auto response_reader = _stub->SubscribeActuatorControlTarget(&context, request);
+
+        mavsdk::rpc::telemetry::ActuatorControlTargetResponse response;
+        while (response_reader->Read(&response)) {
+            auto actuator_control_target_rpc = response.actuator_control_target();
+
+            ActuatorControlTarget actuator_control_target{};
+            actuator_control_target.group = actuator_control_target_rpc.group();
+            int num_controls = std::min(8, actuator_control_target_rpc.controls_size());
+            for (int i = 0; i < num_controls; i++) {
+                actuator_control_target.controls[i] = actuator_control_target_rpc.controls(i);
+            }
+
+            actuator_control_target_events.push_back(actuator_control_target);
+        }
+
+        response_reader->Finish();
+    });
+}
+
 TEST_F(TelemetryServiceImplTest, sendsMultipleRcStatusEvents)
 {
     std::vector<RcStatus> rc_status_events;
@@ -1531,6 +1566,56 @@ TEST_F(TelemetryServiceImplTest, sendsMultipleRcStatusEvents)
     rc_status_events.push_back(createRcStatus(true, true, 89.12f));
 
     checkSendsRcStatusEvents(rc_status_events);
+}
+
+ActuatorControlTarget TelemetryServiceImplTest::createActuatorControlTarget(
+    const uint8_t group, const float* controls) const
+{
+    ActuatorControlTarget actuator_control_target;
+
+    actuator_control_target.group = group;
+    std::copy(controls, controls + 8, actuator_control_target.controls);
+
+    return actuator_control_target;
+}
+
+void TelemetryServiceImplTest::checkSendsActuatorControlTargetEvents(
+    const std::vector<ActuatorControlTarget>& actuator_control_target_events) const
+{
+    std::promise<void> subscription_promise;
+    auto subscription_future = subscription_promise.get_future();
+    mavsdk::Telemetry::actuator_control_target_callback_t actuator_control_target_callback;
+    EXPECT_CALL(*_telemetry, actuator_control_target_async(_))
+        .WillOnce(SaveCallback(&actuator_control_target_callback, &subscription_promise));
+
+    std::vector<ActuatorControlTarget> received_actuator_control_target_events;
+    auto actuator_control_target_stream_future =
+        subscribeActuatorControlTargetAsync(received_actuator_control_target_events);
+    subscription_future.wait();
+    for (const auto actuator_control_target : actuator_control_target_events) {
+        actuator_control_target_callback(actuator_control_target);
+    }
+    _telemetry_service->stop();
+    actuator_control_target_stream_future.wait();
+
+    ASSERT_EQ(
+        actuator_control_target_events.size(), received_actuator_control_target_events.size());
+    for (size_t i = 0; i < actuator_control_target_events.size(); i++) {
+        EXPECT_EQ(
+            actuator_control_target_events.at(i), received_actuator_control_target_events.at(i));
+    }
+}
+
+TEST_F(TelemetryServiceImplTest, sendsMultipleActuatorControlTargetEvents)
+{
+    std::vector<ActuatorControlTarget> actuator_control_target_events;
+    const float controls[8] = {0.0f, 0.1, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f};
+    actuator_control_target_events.push_back(createActuatorControlTarget(0, controls));
+    actuator_control_target_events.push_back(createActuatorControlTarget(1, controls));
+    actuator_control_target_events.push_back(createActuatorControlTarget(2, controls));
+    actuator_control_target_events.push_back(createActuatorControlTarget(3, controls));
+
+    checkSendsActuatorControlTargetEvents(actuator_control_target_events);
 }
 
 } // namespace
