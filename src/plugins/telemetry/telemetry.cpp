@@ -70,6 +70,11 @@ Telemetry::Result Telemetry::set_rate_actuator_control_target(double rate_hz)
     return _impl->set_rate_actuator_control_target(rate_hz);
 }
 
+Telemetry::Result Telemetry::set_rate_actuator_output_status(double rate_hz)
+{
+    return _impl->set_rate_actuator_output_status(rate_hz);
+}
+
 void Telemetry::set_rate_position_velocity_ned_async(double rate_hz, result_callback_t callback)
 {
     _impl->set_rate_position_velocity_ned_async(rate_hz, callback);
@@ -128,6 +133,11 @@ void Telemetry::set_rate_rc_status_async(double rate_hz, result_callback_t callb
 void Telemetry::set_rate_actuator_control_target_async(double rate_hz, result_callback_t callback)
 {
     _impl->set_rate_actuator_control_target_async(rate_hz, callback);
+}
+
+void Telemetry::set_rate_actuator_output_status_async(double rate_hz, result_callback_t callback)
+{
+    _impl->set_rate_actuator_output_status_async(rate_hz, callback);
 }
 
 Telemetry::PositionVelocityNED Telemetry::position_velocity_ned() const
@@ -225,6 +235,11 @@ Telemetry::ActuatorControlTarget Telemetry::actuator_control_target() const
     return _impl->get_actuator_control_target();
 }
 
+Telemetry::ActuatorOutputStatus Telemetry::actuator_output_status() const
+{
+    return _impl->get_actuator_output_status();
+}
+
 void Telemetry::position_velocity_ned_async(position_velocity_ned_callback_t callback)
 {
     return _impl->position_velocity_ned_async(callback);
@@ -302,7 +317,12 @@ void Telemetry::flight_mode_async(flight_mode_callback_t callback)
 
 void Telemetry::actuator_control_target_async(actuator_control_target_callback_t callback)
 {
-    return _impl->actuator_control_target(callback);
+    return _impl->actuator_control_target_async(callback);
+}
+
+void Telemetry::actuator_output_status_async(actuator_output_status_callback_t callback)
+{
+    return _impl->actuator_output_status_async(callback);
 }
 
 std::string Telemetry::flight_mode_str(FlightMode flight_mode)
@@ -615,6 +635,33 @@ operator<<(std::ostream& str, Telemetry::ActuatorControlTarget const& actuator_c
             str << ", ";
         } else {
             str << "]";
+        }
+    }
+    return str;
+}
+
+bool operator==(
+    const Telemetry::ActuatorOutputStatus& lhs, const Telemetry::ActuatorOutputStatus& rhs)
+{
+    if (lhs.active != rhs.active)
+        return false;
+    for (unsigned i = 0; i < lhs.active; i++) {
+        if (lhs.actuator[i] != rhs.actuator[i])
+            return false;
+    }
+    return true;
+}
+
+std::ostream&
+operator<<(std::ostream& str, Telemetry::ActuatorOutputStatus const& actuator_output_status)
+{
+    str << "Active:  " << actuator_output_status.active << ", Actuators: [";
+    for (unsigned i = 0; i < actuator_output_status.active; i++) {
+        str << actuator_output_status.actuator[i];
+        if (i != (actuator_output_status.active - 1)) {
+            str << ", ";
+        } else {
+            str << "]" << std::endl;
         }
     }
     return str;

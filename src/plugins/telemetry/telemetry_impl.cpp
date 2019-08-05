@@ -74,6 +74,11 @@ void TelemetryImpl::init()
         this);
 
     _parent->register_mavlink_message_handler(
+        MAVLINK_MSG_ID_ACTUATOR_OUTPUT_STATUS,
+        std::bind(&TelemetryImpl::process_actuator_output_status, this, _1),
+        this);
+
+    _parent->register_mavlink_message_handler(
         MAVLINK_MSG_ID_HIGHRES_IMU,
         std::bind(&TelemetryImpl::process_imu_reading_ned, this, _1),
         this);
@@ -149,12 +154,6 @@ void TelemetryImpl::enable()
         std::bind(
             &TelemetryImpl::receive_param_hitl, this, std::placeholders::_1, std::placeholders::_2),
         this);
-
-    _parent->set_msg_rate_async(
-        MAVLINK_MSG_ID_ACTUATOR_CONTROL_TARGET,
-        5.0,
-        nullptr,
-        MAVLinkCommands::DEFAULT_COMPONENT_ID_AUTOPILOT);
 }
 
 void TelemetryImpl::disable() {}
@@ -235,6 +234,12 @@ Telemetry::Result TelemetryImpl::set_rate_actuator_control_target(double rate_hz
 {
     return telemetry_result_from_command_result(
         _parent->set_msg_rate(MAVLINK_MSG_ID_ACTUATOR_CONTROL_TARGET, rate_hz));
+}
+
+Telemetry::Result TelemetryImpl::set_rate_actuator_output_status(double rate_hz)
+{
+    return telemetry_result_from_command_result(
+        _parent->set_msg_rate(MAVLINK_MSG_ID_ACTUATOR_OUTPUT_STATUS, rate_hz));
 }
 
 void TelemetryImpl::set_rate_position_velocity_ned_async(
@@ -341,6 +346,15 @@ void TelemetryImpl::set_rate_actuator_control_target_async(
 {
     _parent->set_msg_rate_async(
         MAVLINK_MSG_ID_ACTUATOR_CONTROL_TARGET,
+        rate_hz,
+        std::bind(&TelemetryImpl::command_result_callback, std::placeholders::_1, callback));
+}
+
+void TelemetryImpl::set_rate_actuator_output_status_async(
+    double rate_hz, Telemetry::result_callback_t callback)
+{
+    _parent->set_msg_rate_async(
+        MAVLINK_MSG_ID_ACTUATOR_OUTPUT_STATUS,
         rate_hz,
         std::bind(&TelemetryImpl::command_result_callback, std::placeholders::_1, callback));
 }
@@ -676,6 +690,20 @@ void TelemetryImpl::process_actuator_control_target(const mavlink_message_t& mes
     }
 }
 
+void TelemetryImpl::process_actuator_output_status(const mavlink_message_t& message)
+{
+    mavlink_actuator_output_status_t actuator_output_status;
+    mavlink_msg_actuator_output_status_decode(&message, &actuator_output_status);
+
+    set_actuator_output_status(actuator_output_status.active, actuator_output_status.actuator);
+
+    if (_actuator_output_status_subscription) {
+        auto callback = _actuator_output_status_subscription;
+        auto arg = get_actuator_output_status();
+        _parent->call_user_callback([callback, arg]() { callback(arg); });
+    }
+}
+
 Telemetry::FlightMode TelemetryImpl::to_flight_mode_from_custom_mode(uint32_t custom_mode)
 {
     px4::px4_custom_mode px4_custom_mode;
@@ -986,6 +1014,12 @@ Telemetry::ActuatorControlTarget TelemetryImpl::get_actuator_control_target() co
     return _actuator_control_target;
 }
 
+Telemetry::ActuatorOutputStatus TelemetryImpl::get_actuator_output_status() const
+{
+    std::lock_guard<std::mutex> lock(_actuator_output_status_mutex);
+    return _actuator_output_status;
+}
+
 void TelemetryImpl::set_health_local_position(bool ok)
 {
     std::lock_guard<std::mutex> lock(_health_mutex);
@@ -1047,6 +1081,13 @@ void TelemetryImpl::set_actuator_control_target(uint8_t group, const float* cont
     std::lock_guard<std::mutex> lock(_actuator_control_target_mutex);
     _actuator_control_target.group = group;
     std::copy(controls, controls + 8, _actuator_control_target.controls);
+}
+
+void TelemetryImpl::set_actuator_output_status(uint32_t active, const float* actuators)
+{
+    std::lock_guard<std::mutex> lock(_actuator_output_status_mutex);
+    _actuator_output_status.active = active;
+    std::copy(actuators, actuators + active, _actuator_output_status.actuator);
 }
 
 void TelemetryImpl::position_velocity_ned_async(
@@ -1142,9 +1183,16 @@ void TelemetryImpl::rc_status_async(Telemetry::rc_status_callback_t& callback)
     _rc_status_subscription = callback;
 }
 
-void TelemetryImpl::actuator_control_target(Telemetry::actuator_control_target_callback_t& callback)
+void TelemetryImpl::actuator_control_target_async(
+    Telemetry::actuator_control_target_callback_t& callback)
 {
     _actuator_control_target_subscription = callback;
+}
+
+void TelemetryImpl::actuator_output_status_async(
+    Telemetry::actuator_output_status_callback_t& callback)
+{
+    _actuator_output_status_subscription = callback;
 }
 
 void TelemetryImpl::process_parameter_update(const std::string& name)

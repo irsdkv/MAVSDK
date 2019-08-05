@@ -470,6 +470,36 @@ public:
         return grpc::Status::OK;
     }
 
+    grpc::Status SubscribeActuatorOutputStatus(
+        grpc::ServerContext* /* context */,
+        const mavsdk::rpc::telemetry::SubscribeActuatorOutputStatusRequest* /* request */,
+        grpc::ServerWriter<rpc::telemetry::ActuatorOutputStatusResponse>* writer) override
+    {
+        std::mutex actuator_output_status_mutex{};
+
+        _telemetry.actuator_output_status_async(
+            [&writer, &actuator_output_status_mutex](
+                mavsdk::Telemetry::ActuatorOutputStatus actuator_output_status) {
+                auto rpc_actuator_output_status =
+                    new mavsdk::rpc::telemetry::ActuatorOutputStatus();
+                rpc_actuator_output_status->set_active(actuator_output_status.active);
+                for (unsigned i = 0; i < actuator_output_status.active; i++) {
+                    rpc_actuator_output_status->add_actuator(actuator_output_status.actuator[i]);
+                }
+
+                mavsdk::rpc::telemetry::ActuatorOutputStatusResponse
+                    rpc_actuator_output_status_response;
+                rpc_actuator_output_status_response.set_allocated_actuator_output_status(
+                    rpc_actuator_output_status);
+
+                std::lock_guard<std::mutex> lock(actuator_output_status_mutex);
+                writer->Write(rpc_actuator_output_status_response);
+            });
+
+        _stop_future.wait();
+        return grpc::Status::OK;
+    }
+
     void stop() { _stop_promise.set_value(); }
 
 private:

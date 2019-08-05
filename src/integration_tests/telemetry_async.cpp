@@ -26,6 +26,7 @@ static void print_battery(Telemetry::Battery battery);
 static void print_rc_status(Telemetry::RCStatus rc_status);
 static void print_position_velocity_ned(Telemetry::PositionVelocityNED position_velocity_ned);
 static void print_actuator_control_target(Telemetry::ActuatorControlTarget actuator_control_target);
+static void print_actuator_output_status(Telemetry::ActuatorOutputStatus actuator_output_status);
 
 static bool _set_rate_error = false;
 static bool _received_position = false;
@@ -45,6 +46,7 @@ static bool _received_battery = false;
 static bool _received_rc_status = false;
 static bool _received_position_velocity_ned = false;
 static bool _received_actuator_control_target = false;
+static bool _received_actuator_output_status = false;
 
 TEST_F(SitlTest, TelemetryAsync)
 {
@@ -128,6 +130,9 @@ TEST_F(SitlTest, TelemetryAsync)
     telemetry->position_velocity_ned_async(std::bind(&print_position_velocity_ned, _1));
 
     telemetry->actuator_control_target_async(std::bind(&print_actuator_control_target, _1));
+
+    telemetry->actuator_output_status_async(std::bind(&print_actuator_output_status, _1));
+
     std::this_thread::sleep_for(std::chrono::seconds(10));
 
     EXPECT_FALSE(_set_rate_error);
@@ -148,6 +153,7 @@ TEST_F(SitlTest, TelemetryAsync)
     // EXPECT_TRUE(_received_rc_status); // No RC is sent in SITL.
     EXPECT_TRUE(_received_position_velocity_ned);
     // EXPECT_TRUE(_received_actuator_control_target); TODO check
+    // EXPECT_TRUE(_received_actuator_output_status); TODO check
 }
 
 void receive_result(Telemetry::Result result)
@@ -296,4 +302,19 @@ static void print_actuator_control_target(Telemetry::ActuatorControlTarget actua
     }
 
     _received_actuator_control_target = true;
+}
+
+static void print_actuator_output_status(Telemetry::ActuatorOutputStatus actuator_output_status)
+{
+    std::cout << "Active:  " << actuator_output_status.active << ", Actuators: [";
+    for (unsigned i = 0; i < actuator_output_status.active; i++) {
+        std::cout << actuator_output_status.actuator[i];
+        if (i != (actuator_output_status.active - 1)) {
+            std::cout << ", ";
+        } else {
+            std::cout << "]" << std::endl;
+        }
+    }
+
+    _received_actuator_output_status = true;
 }

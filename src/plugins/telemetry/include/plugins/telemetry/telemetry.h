@@ -261,6 +261,14 @@ public:
     };
 
     /**
+     * @brief TODO
+     */
+    struct ActuatorOutputStatus {
+        uint32_t active; /**< @brief TODO */
+        float actuator[32]; /**< @brief TODO */
+    };
+
+    /**
      * @brief Results enum for telemetry requests.
      */
     enum class Result {
@@ -408,6 +416,16 @@ public:
     Result set_rate_actuator_control_target(double rate_hz);
 
     /**
+     * @brief TODO
+     *
+     * @note TODO
+     *
+     * @param TODO
+     * @return TODO
+     */
+    Result set_rate_actuator_output_status(double rate_hz);
+
+    /**
      * @brief Set rate of kinematic (position and velocity) updates (asynchronous).
      *
      * @note To stop sending it completely, use a rate_hz of -1, for default rate use 0.
@@ -526,6 +544,16 @@ public:
      * @return TODO
      */
     void set_rate_actuator_control_target_async(double rate_hz, result_callback_t callback);
+
+    /**
+     * @brief TODO
+     *
+     * @note TODO
+     *
+     * @param TODO
+     * @return TODO
+     */
+    void set_rate_actuator_output_status_async(double rate_hz, result_callback_t callback);
 
     /**
      * @brief Get the current kinematic (position and velocity) in NED frame (synchronous).
@@ -661,6 +689,13 @@ public:
      * @return TODO
      */
     ActuatorControlTarget actuator_control_target() const;
+
+    /**
+     * @brief TODO
+     *
+     * @return TODO
+     */
+    ActuatorOutputStatus actuator_output_status() const;
 
     /**
      * @brief Callback type for kinematic (position and velocity) updates.
@@ -913,6 +948,21 @@ public:
     void actuator_control_target_async(actuator_control_target_callback_t callback);
 
     /**
+     * @brief TODO
+     *
+     * @param TODO
+     */
+    typedef std::function<void(ActuatorOutputStatus actuator_output_status)>
+        actuator_output_status_callback_t;
+
+    /**
+     * @brief TODO
+     *
+     * @param TODO
+     */
+    void actuator_output_status_async(actuator_output_status_callback_t callback);
+
+    /**
      * @brief Copy constructor (object is not copyable).
      */
     Telemetry(const Telemetry&) = delete;
@@ -1127,5 +1177,21 @@ bool operator==(
  */
 std::ostream&
 operator<<(std::ostream& str, Telemetry::ActuatorControlTarget const& actuator_control_target);
+
+/**
+ * @brief Equal operator to compare two `Telemetry::ActuatorOutputStatus` objects.
+ *
+ * @return `true` if items are equal.
+ */
+bool operator==(
+    const Telemetry::ActuatorOutputStatus& lhs, const Telemetry::ActuatorOutputStatus& rhs);
+
+/**
+ * @brief Stream operator to print information about a `Telemetry::ActuatorControlTarget`.
+ *
+ * @returns A reference to the stream.
+ */
+std::ostream&
+operator<<(std::ostream& str, Telemetry::ActuatorOutputStatus const& actuator_output_status);
 
 } // namespace mavsdk
