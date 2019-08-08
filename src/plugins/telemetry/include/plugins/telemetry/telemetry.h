@@ -109,6 +109,17 @@ public:
         float yaw_deg; /**< @brief Yaw angle in degrees, positive is clock-wise seen from above. */
     };
 
+	/**
+	 * @brief Angular speed type.
+	 *
+	 * The angular speed of vehicle body in radians/second.
+	 */
+	struct AngularSpeed {
+		float rollspeed; /**< @brief Roll angular speed */
+		float pitchspeed; /**< @brief Pitch angular speed */
+		float yawspeed; /**< @brief Yaw angular speed */
+	};
+
     /**
      * @brief Ground speed type.
      *
@@ -253,19 +264,30 @@ public:
     };
 
     /**
-     * @brief TODO
+     * @brief The vehicle actuator's rate control type.
+     *
+     * An actuator's control group is e.g. attitude, for the core flight controls, or gimbal for payload.
+     * For more information about PX4 groups, check out
+     * https://dev.px4.io/v1.9.0/en/concept/mixing.html#control-pipeline
+     *
+     * Actuator controls normed to -1..+1 where 0 is neutral position. Throttle for single rotation direction
+     * motors is 0..1, negative range for reverse direction.
+     *
+     * For more information about controls, check out
+     * https://mavlink.io/en/messages/common.html#SET_ACTUATOR_CONTROL_TARGET
+     *
      */
     struct ActuatorControlTarget {
-        uint8_t group; /**< @brief TODO */
-        float controls[8]; /**< @brief TODO */
+        uint8_t group; /**< @brief Actuator group. */
+        float controls[8]; /**< @brief Actuator controls. */
     };
 
     /**
-     * @brief TODO
+     * @brief The raw values of the actuator outputs type.
      */
     struct ActuatorOutputStatus {
-        uint32_t active; /**< @brief TODO */
-        float actuator[32]; /**< @brief TODO */
+        uint32_t active; /**< @brief Active outputs */
+        float actuator[32]; /**< @brief Servo / motor output array values. */
     };
 
     /**
@@ -406,22 +428,22 @@ public:
     Result set_rate_rc_status(double rate_hz);
 
     /**
-     * @brief TODO
+     * @brief Set rate of actuator controls updates (synchronous).
      *
-     * @note TODO
+     * @note To stop sending it completely, use a rate_hz of -1, for default rate use 0.
      *
-     * @param TODO
-     * @return TODO
+     * @param rate_hz Rate in Hz.
+     * @return Result of request.
      */
     Result set_rate_actuator_control_target(double rate_hz);
 
     /**
-     * @brief TODO
+     * @brief Set rate of actuator output status updates (synchronous).
      *
-     * @note TODO
+     * @note o stop sending it completely, use a rate_hz of -1, for default rate use 0.
      *
-     * @param TODO
-     * @return TODO
+     * @param rate_hz Rate in Hz.
+     * @return Result of request.
      */
     Result set_rate_actuator_output_status(double rate_hz);
 
@@ -536,22 +558,22 @@ public:
     void set_rate_rc_status_async(double rate_hz, result_callback_t callback);
 
     /**
-     * @brief TODO
+     * @brief Set rate of actuator control target updates (asynchronous).
      *
-     * @note TODO
+     * @note To stop sending it completely, use a rate_hz of -1, for default rate use 0.
      *
-     * @param TODO
-     * @return TODO
+     * @param rate_hz Rate in Hz.
+     * @return callback Callback to receive request result.
      */
     void set_rate_actuator_control_target_async(double rate_hz, result_callback_t callback);
 
     /**
-     * @brief TODO
+     * @brief et rate of actuator control target updates (asynchronous).
      *
-     * @note TODO
+     * @note To stop sending it completely, use a rate_hz of -1, for default rate use 0.
      *
-     * @param TODO
-     * @return TODO
+     * @param rate_hz Rate in Hz.
+     * @return callback Callback to receive request result.
      */
     void set_rate_actuator_output_status_async(double rate_hz, result_callback_t callback);
 
@@ -610,6 +632,13 @@ public:
      * @return Attitude as Euler angle.
      */
     EulerAngle attitude_euler_angle() const;
+
+	/**
+	 * @brief Get the current angular speed in rad/s (synchronous).
+	 *
+	 * @return Angular speed.
+	 */
+	AngularSpeed attitude_angular_speed() const;
 
     /**
      * @brief Get the camera's attitude in quaternions (synchronous).
@@ -684,16 +713,16 @@ public:
     RCStatus rc_status() const;
 
     /**
-     * @brief TODO
+     * @brief Get the actuator control target (synchronous).
      *
-     * @return TODO
+     * @return Actuator control target
      */
     ActuatorControlTarget actuator_control_target() const;
 
     /**
-     * @brief TODO
+     * @brief Get the actuator output status (synchronous).
      *
-     * @return TODO
+     * @return Actuator output status
      */
     ActuatorOutputStatus actuator_output_status() const;
 
@@ -799,6 +828,20 @@ public:
      * @param callback Function to call with updates.
      */
     void attitude_euler_angle_async(attitude_euler_angle_callback_t callback);
+
+	/**
+	 * @brief Callback type for angular speed updates in quaternion.
+	 *
+	 * @param angular_speed Angular speed.
+	 */
+	typedef std::function<void(AngularSpeed angular_speed)> attitude_angular_speed_callback_t;
+
+	/**
+	 * @brief Subscribe to attitude updates in angular speed (asynchronous).
+	 *
+	 * @param callback Function to call with updates.
+	 */
+	void attitude_angular_speed_async(attitude_angular_speed_callback_t callback);
 
     /**
      * @brief Subscribe to camera attitude updates in quaternion (asynchronous).
@@ -933,32 +976,32 @@ public:
     void rc_status_async(rc_status_callback_t callback);
 
     /**
-     * @brief TODO
+     * @brief Callback type for actuator control target updates (asynchronous).
      *
-     * @param TODO
+     * @param actuator_control_target Actuator control target.
      */
     typedef std::function<void(ActuatorControlTarget actuator_control_target)>
         actuator_control_target_callback_t;
 
     /**
-     * @brief TODO
+     * @brief Subscribe to actuator control target updates (asynchronous).
      *
-     * @param TODO
+     * @param callback Function to call with updates.
      */
     void actuator_control_target_async(actuator_control_target_callback_t callback);
 
     /**
-     * @brief TODO
+     * @brief Callback type for actuator output status target updates (asynchronous).
      *
-     * @param TODO
+     * @param callback Function to call with updates.
      */
     typedef std::function<void(ActuatorOutputStatus actuator_output_status)>
         actuator_output_status_callback_t;
 
     /**
-     * @brief TODO
+     * @brief Subscribe to actuator output status target updates (asynchronous).
      *
-     * @param TODO
+     * @param callback Function to call with updates.
      */
     void actuator_output_status_async(actuator_output_status_callback_t callback);
 
@@ -1126,6 +1169,20 @@ bool operator==(const Telemetry::EulerAngle& lhs, const Telemetry::EulerAngle& r
  * @return A reference to the stream.
  */
 std::ostream& operator<<(std::ostream& str, Telemetry::EulerAngle const& euler_angle);
+
+/**
+ * @brief Equal operator to compare two `Telemetry::AngularSpeed` objects.
+ *
+ * @return `true` if items are equal.
+ */
+bool operator==(const Telemetry::AngularSpeed& lhs, const Telemetry::AngularSpeed& rhs);
+
+/**
+ * @brief Stream operator to print information about a `Telemetry::AngularSpeed`.
+ *
+ * @return A reference to the stream.
+ */
+std::ostream& operator<<(std::ostream& str, Telemetry::AngularSpeed const& angular_speed);
 
 /**
  * @brief Equal operator to compare two `Telemetry::GroundSpeedNED` objects.

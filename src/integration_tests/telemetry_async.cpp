@@ -15,6 +15,7 @@ static void print_in_air(bool in_air);
 static void print_armed(bool armed);
 static void print_quaternion(Telemetry::Quaternion quaternion);
 static void print_euler_angle(Telemetry::EulerAngle euler_angle);
+static void print_angular_speed(Telemetry::AngularSpeed angular_speed);
 #if CAMERA_AVAILABLE == 1
 static void print_camera_quaternion(Telemetry::Quaternion quaternion);
 static void print_camera_euler_angle(Telemetry::EulerAngle euler_angle);
@@ -35,6 +36,7 @@ static bool _received_in_air = false;
 static bool _received_armed = false;
 static bool _received_quaternion = false;
 static bool _received_euler_angle = false;
+static bool _received_angular_speed = false;
 #if CAMERA_AVAILABLE == 1
 static bool _received_camera_quaternion = false;
 static bool _received_camera_euler_angle = false;
@@ -109,7 +111,9 @@ TEST_F(SitlTest, TelemetryAsync)
 
     telemetry->attitude_quaternion_async(std::bind(&print_quaternion, _1));
 
-    telemetry->attitude_euler_angle_async(std::bind(&print_euler_angle, _1));
+	telemetry->attitude_euler_angle_async(std::bind(&print_euler_angle, _1));
+
+	telemetry->attitude_angular_speed_async(std::bind(&print_angular_speed, _1));
 
 #if CAMERA_AVAILABLE == 1
     telemetry->camera_attitude_quaternion_async(std::bind(&print_camera_quaternion, _1));
@@ -141,6 +145,7 @@ TEST_F(SitlTest, TelemetryAsync)
     EXPECT_TRUE(_received_in_air);
     EXPECT_TRUE(_received_armed);
     EXPECT_TRUE(_received_quaternion);
+	EXPECT_TRUE(_received_angular_speed);
     EXPECT_TRUE(_received_euler_angle);
 #if CAMERA_AVAILABLE == 1
     EXPECT_TRUE(_received_camera_quaternion);
@@ -152,8 +157,8 @@ TEST_F(SitlTest, TelemetryAsync)
     EXPECT_TRUE(_received_battery);
     // EXPECT_TRUE(_received_rc_status); // No RC is sent in SITL.
     EXPECT_TRUE(_received_position_velocity_ned);
-    // EXPECT_TRUE(_received_actuator_control_target); TODO check
-    // EXPECT_TRUE(_received_actuator_output_status); TODO check
+    // EXPECT_TRUE(_received_actuator_control_target); TODO check is that sent in SITL.
+    // EXPECT_TRUE(_received_actuator_output_status); TODO check is that sent in SITL.
 }
 
 void receive_result(Telemetry::Result result)
@@ -206,7 +211,15 @@ void print_euler_angle(Telemetry::EulerAngle euler_angle)
     std::cout << "Euler angle: [ " << euler_angle.roll_deg << ", " << euler_angle.pitch_deg << ", "
               << euler_angle.yaw_deg << " ] deg" << std::endl;
 
-    _received_euler_angle = true;
+	_received_euler_angle = true;
+}
+
+void print_angular_speed(Telemetry::AngularSpeed angular_speed)
+{
+	std::cout << "Angular speed: [ " << angular_speed.rollspeed << ", " << angular_speed.pitchspeed << ", "
+	          << angular_speed.yawspeed << " ] rad/s" << std::endl;
+
+	_received_angular_speed = true;
 }
 
 #if CAMERA_AVAILABLE == 1

@@ -460,7 +460,13 @@ void TelemetryImpl::process_attitude_quaternion(const mavlink_message_t& message
                                      attitude_quaternion.q3,
                                      attitude_quaternion.q4};
 
+    Telemetry::AngularSpeed angular_speed{attitude_quaternion.rollspeed,
+										  attitude_quaternion.pitchspeed,
+										  attitude_quaternion.yawspeed};
+
     set_attitude_quaternion(quaternion);
+
+	set_attitude_angular_speed(angular_speed);
 
     if (_attitude_quaternion_subscription) {
         auto callback = _attitude_quaternion_subscription;
@@ -473,6 +479,12 @@ void TelemetryImpl::process_attitude_quaternion(const mavlink_message_t& message
         auto arg = get_attitude_euler_angle();
         _parent->call_user_callback([callback, arg]() { callback(arg); });
     }
+
+	if (_attitude_angular_speed_subscription) {
+		auto callback = _attitude_angular_speed_subscription;
+		auto arg = get_attitude_angular_speed();
+		_parent->call_user_callback([callback, arg]() { callback(arg); });
+	}
 }
 
 void TelemetryImpl::process_mount_orientation(const mavlink_message_t& message)
@@ -889,6 +901,12 @@ Telemetry::Quaternion TelemetryImpl::get_attitude_quaternion() const
     return _attitude_quaternion;
 }
 
+Telemetry::AngularSpeed TelemetryImpl::get_attitude_angular_speed() const
+{
+	std::lock_guard<std::mutex> lock(_attitude_angular_speed_mutex);
+	return _attitude_angular_speed;
+}
+
 Telemetry::EulerAngle TelemetryImpl::get_attitude_euler_angle() const
 {
     std::lock_guard<std::mutex> lock(_attitude_quaternion_mutex);
@@ -901,6 +919,12 @@ void TelemetryImpl::set_attitude_quaternion(Telemetry::Quaternion quaternion)
 {
     std::lock_guard<std::mutex> lock(_attitude_quaternion_mutex);
     _attitude_quaternion = quaternion;
+}
+
+void TelemetryImpl::set_attitude_angular_speed(Telemetry::AngularSpeed angular_speed)
+{
+	std::lock_guard<std::mutex> lock(_attitude_quaternion_mutex);
+	_attitude_angular_speed = angular_speed;
 }
 
 Telemetry::Quaternion TelemetryImpl::get_camera_attitude_quaternion() const
@@ -1129,6 +1153,11 @@ void TelemetryImpl::attitude_quaternion_async(Telemetry::attitude_quaternion_cal
 void TelemetryImpl::attitude_euler_angle_async(Telemetry::attitude_euler_angle_callback_t& callback)
 {
     _attitude_euler_angle_subscription = callback;
+}
+
+void TelemetryImpl::attitude_angular_speed_async(Telemetry::attitude_angular_speed_callback_t& callback)
+{
+	_attitude_angular_speed_subscription = callback;
 }
 
 void TelemetryImpl::camera_attitude_quaternion_async(

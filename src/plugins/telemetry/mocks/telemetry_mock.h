@@ -18,6 +18,8 @@ public:
     MOCK_CONST_METHOD1(flight_mode_async, void(Telemetry::flight_mode_callback_t)){};
     MOCK_CONST_METHOD1(
         attitude_quaternion_async, void(Telemetry::attitude_quaternion_callback_t)){};
+	MOCK_CONST_METHOD1(
+		attitude_angular_speed_async, void(Telemetry::attitude_angular_speed_callback_t)){};
     MOCK_CONST_METHOD1(
         attitude_euler_angle_async, void(Telemetry::attitude_euler_angle_callback_t)){};
     MOCK_CONST_METHOD1(
