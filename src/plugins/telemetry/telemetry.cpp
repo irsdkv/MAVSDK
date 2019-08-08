@@ -180,6 +180,11 @@ Telemetry::EulerAngle Telemetry::attitude_euler_angle() const
     return _impl->get_attitude_euler_angle();
 }
 
+Telemetry::AngularSpeed Telemetry::attitude_angular_speed() const
+{
+	return _impl->get_attitude_angular_speed();
+}
+
 Telemetry::Quaternion Telemetry::camera_attitude_quaternion() const
 {
     return _impl->get_camera_attitude_quaternion();
@@ -278,6 +283,11 @@ void Telemetry::attitude_quaternion_async(attitude_quaternion_callback_t callbac
 void Telemetry::attitude_euler_angle_async(attitude_euler_angle_callback_t callback)
 {
     return _impl->attitude_euler_angle_async(callback);
+}
+
+void Telemetry::attitude_angular_speed_async(attitude_angular_speed_callback_t callback)
+{
+	return _impl->attitude_angular_speed_async(callback);
 }
 
 void Telemetry::camera_attitude_quaternion_async(attitude_quaternion_callback_t callback)
@@ -574,6 +584,17 @@ std::ostream& operator<<(std::ostream& str, Telemetry::EulerAngle const& euler_a
 {
     return str << "[roll_deg: " << euler_angle.roll_deg << ", pitch_deg: " << euler_angle.pitch_deg
                << ", yaw_deg: " << euler_angle.yaw_deg << "]";
+}
+
+bool operator==(const Telemetry::AngularSpeed& lhs, const Telemetry::AngularSpeed& rhs)
+{
+	return lhs.rollspeed == rhs.rollspeed && lhs.pitchspeed == rhs.pitchspeed && lhs.yawspeed == rhs.yawspeed;
+}
+
+std::ostream& operator<<(std::ostream& str, Telemetry::AngularSpeed const& angular_speed)
+{
+	return str << "[rollspeed_deg/s: " << angular_speed.rollspeed << ", pitchspeed_deg/s: " << angular_speed.pitchspeed
+	           << ", yawspeed_deg/s: " << angular_speed.yawspeed << "]";
 }
 
 bool operator==(const Telemetry::GroundSpeedNED& lhs, const Telemetry::GroundSpeedNED& rhs)

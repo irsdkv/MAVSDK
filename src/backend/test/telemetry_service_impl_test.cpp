@@ -37,6 +37,8 @@ using Quaternion = mavsdk::Telemetry::Quaternion;
 
 using EulerAngle = mavsdk::Telemetry::EulerAngle;
 
+using AngularSpeed = mavsdk::Telemetry::AngularSpeed;
+
 using GroundSpeedNed = mavsdk::Telemetry::GroundSpeedNED;
 
 using RcStatus = mavsdk::Telemetry::RCStatus;
@@ -102,6 +104,10 @@ protected:
     void checkSendsAttitudeQuaternions(const std::vector<Quaternion>& quaternions) const;
     Quaternion createQuaternion(const float w, const float x, const float y, const float z) const;
     std::future<void> subscribeAttitudeQuaternionAsync(std::vector<Quaternion>& quaternions) const;
+
+	void checkSendsAttitudeAngularSpeeds(const std::vector<AngularSpeed>& angular_speeds) const;
+	AngularSpeed createAngularSpeed(const float rollspeed, const float pitchspeed, const float yawspeed) const;
+	std::future<void> subscribeAttitudeAngularSpeedAsync(std::vector<AngularSpeed>& angular_speeds) const;
 
     void checkSendsAttitudeEulerAngles(const std::vector<EulerAngle>& euler_angles) const;
     EulerAngle
@@ -982,6 +988,17 @@ TEST_F(TelemetryServiceImplTest, registersToTelemetryAttitudeQuaternionAsync)
     quaternion_stream_future.wait();
 }
 
+TEST_F(TelemetryServiceImplTest, registersToTelemetryAttitudeAngularSpeedAsync)
+{
+	EXPECT_CALL(*_telemetry, attitude_angular_speed_async(_)).Times(1);
+
+	std::vector<AngularSpeed> angular_speeds;
+	auto angular_speed_stream_future = subscribeAttitudeAngularSpeedAsync(angular_speeds);
+
+	_telemetry_service->stop();
+	angular_speed_stream_future.wait();
+}
+
 std::future<void> TelemetryServiceImplTest::subscribeAttitudeQuaternionAsync(
     std::vector<Quaternion>& quaternions) const
 {
@@ -1009,13 +1026,48 @@ std::future<void> TelemetryServiceImplTest::subscribeAttitudeQuaternionAsync(
 
 TEST_F(TelemetryServiceImplTest, doesNotSendAttitudeQuaternionIfCallbackNotCalled)
 {
-    std::vector<Quaternion> quaternions;
-    auto quaternion_stream_future = subscribeAttitudeQuaternionAsync(quaternions);
+	std::vector<Quaternion> quaternions;
+	auto quaternion_stream_future = subscribeAttitudeQuaternionAsync(quaternions);
 
-    _telemetry_service->stop();
-    quaternion_stream_future.wait();
+	_telemetry_service->stop();
+	quaternion_stream_future.wait();
 
-    EXPECT_EQ(0, quaternions.size());
+	EXPECT_EQ(0, quaternions.size());
+}
+
+std::future<void> TelemetryServiceImplTest::subscribeAttitudeAngularSpeedAsync(
+		std::vector<AngularSpeed>& angular_speeds) const
+{
+	return std::async(std::launch::async, [&]() {
+		grpc::ClientContext context;
+		mavsdk::rpc::telemetry::SubscribeAttitudeAngularSpeedRequest request;
+		auto response_reader = _stub->SubscribeAttitudeAngularSpeed(&context, request);
+
+		mavsdk::rpc::telemetry::AttitudeAngularSpeedResponse response;
+		while (response_reader->Read(&response)) {
+			auto angular_speed_rpc = response.attitude_angular_speed();
+
+			AngularSpeed angular_speed;
+			angular_speed.rollspeed = angular_speed_rpc.rollspeed();
+			angular_speed.pitchspeed = angular_speed_rpc.pitchspeed();
+			angular_speed.yawspeed = angular_speed_rpc.yawspeed();
+
+			angular_speeds.push_back(angular_speed);
+		}
+
+		response_reader->Finish();
+	});
+	}
+
+TEST_F(TelemetryServiceImplTest, doesNotSendAttitudeAngularSpeedIfCallbackNotCalled)
+{
+	std::vector<AngularSpeed> angular_speeds;
+	auto angular_speed_stream_future = subscribeAttitudeAngularSpeedAsync(angular_speeds);
+
+	_telemetry_service->stop();
+	angular_speed_stream_future.wait();
+
+	EXPECT_EQ(0, angular_speeds.size());
 }
 
 TEST_F(TelemetryServiceImplTest, sendsOneAttitudeQuaternion)
@@ -1024,6 +1076,14 @@ TEST_F(TelemetryServiceImplTest, sendsOneAttitudeQuaternion)
     quaternions.push_back(createQuaternion(0.1f, 0.2f, 0.3f, 0.4f));
 
     checkSendsAttitudeQuaternions(quaternions);
+}
+
+TEST_F(TelemetryServiceImplTest, sendsOneAttitudeAngularSpeed)
+{
+	std::vector<AngularSpeed> angular_speed;
+	angular_speed.push_back(createAngularSpeed(0.1f, 0.2f, 0.3f));
+
+	checkSendsAttitudeAngularSpeeds(angular_speed);
 }
 
 Quaternion TelemetryServiceImplTest::createQuaternion(
@@ -1037,6 +1097,17 @@ Quaternion TelemetryServiceImplTest::createQuaternion(
     quaternion.z = z;
 
     return quaternion;
+}
+
+AngularSpeed TelemetryServiceImplTest::createAngularSpeed(const float rollspeed, const float pitchspeed, const float yawspeed) const
+{
+	mavsdk::Telemetry::AngularSpeed angular_speed;
+
+	angular_speed.rollspeed = rollspeed;
+	angular_speed.pitchspeed = pitchspeed;
+	angular_speed.yawspeed = yawspeed;
+
+	return angular_speed;
 }
 
 void TelemetryServiceImplTest::checkSendsAttitudeQuaternions(
@@ -1063,6 +1134,30 @@ void TelemetryServiceImplTest::checkSendsAttitudeQuaternions(
     }
 }
 
+void TelemetryServiceImplTest::checkSendsAttitudeAngularSpeeds(
+		const std::vector<AngularSpeed>& angular_speeds) const
+{
+	std::promise<void> subscription_promise;
+	auto subscription_future = subscription_promise.get_future();
+	mavsdk::Telemetry::attitude_angular_speed_callback_t attitude_angular_speed_callback;
+	EXPECT_CALL(*_telemetry, attitude_angular_speed_async(_))
+			.WillOnce(SaveCallback(&attitude_angular_speed_callback, &subscription_promise));
+
+	std::vector<AngularSpeed> received_angular_speeds;
+	auto angular_speed_stream_future = subscribeAttitudeAngularSpeedAsync(received_angular_speeds);
+	subscription_future.wait();
+	for (const auto angular_speed : angular_speeds) {
+		attitude_angular_speed_callback(angular_speed);
+	}
+	_telemetry_service->stop();
+	angular_speed_stream_future.wait();
+
+	ASSERT_EQ(angular_speeds.size(), received_angular_speeds.size());
+	for (size_t i = 0; i < angular_speeds.size(); i++) {
+		EXPECT_EQ(angular_speeds.at(i), received_angular_speeds.at(i));
+	}
+}
+
 TEST_F(TelemetryServiceImplTest, sendsMultipleAttitudeQuaternions)
 {
     std::vector<Quaternion> quaternions;
@@ -1071,6 +1166,16 @@ TEST_F(TelemetryServiceImplTest, sendsMultipleAttitudeQuaternions)
     quaternions.push_back(createQuaternion(5.2f, 5.9f, 1.1f, 0.8f));
 
     checkSendsAttitudeQuaternions(quaternions);
+}
+
+TEST_F(TelemetryServiceImplTest, sendsMultipleAttitudeAngularSpeeds)
+{
+	std::vector<AngularSpeed> angular_speed;
+	angular_speed.push_back(createAngularSpeed(0.1f, 0.2f, 0.3f));
+	angular_speed.push_back(createAngularSpeed(2.1f, 0.4f, -2.2f));
+	angular_speed.push_back(createAngularSpeed(5.2f, 5.9f, 1.1f));
+
+	checkSendsAttitudeAngularSpeeds(angular_speed);
 }
 
 TEST_F(TelemetryServiceImplTest, registersToTelemetryAttitudeEulerAsync)

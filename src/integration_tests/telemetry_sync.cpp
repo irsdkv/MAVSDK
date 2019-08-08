@@ -65,6 +65,9 @@ TEST_F(SitlTest, TelemetrySync)
         std::cout << "Euler: (" << euler_angle.roll_deg << " deg, " << euler_angle.pitch_deg
                   << " deg," << euler_angle.yaw_deg << " deg)" << std::endl;
 
+	    const Telemetry::AngularSpeed& angular_speed = telemetry->attitude_angular_speed();
+	    std::cout << "Angular speed: (" << angular_speed.rollspeed << ", " << angular_speed.pitchspeed << "," << angular_speed.yawspeed << ")" << std::endl;
+
         const Telemetry::GroundSpeedNED& ground_speed_ned = telemetry->ground_speed_ned();
         std::cout << "Speed: (" << ground_speed_ned.velocity_north_m_s << " m/s, "
                   << ground_speed_ned.velocity_east_m_s << " m/s,"

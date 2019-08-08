@@ -314,6 +314,31 @@ public:
         return grpc::Status::OK;
     }
 
+	grpc::Status SubscribeAttitudeAngularSpeed(
+			grpc::ServerContext* /* context */,
+			const mavsdk::rpc::telemetry::SubscribeAttitudeAngularSpeedRequest* /* request */,
+			grpc::ServerWriter<rpc::telemetry::AttitudeAngularSpeedResponse>* writer) override
+	{
+		std::mutex attitude_angular_speed_mutex{};
+
+		_telemetry.attitude_angular_speed_async(
+				[&writer, &attitude_angular_speed_mutex](mavsdk::Telemetry::AngularSpeed angular_speed) {
+					auto rpc_angular_speed = new mavsdk::rpc::telemetry::AngularSpeed();
+					rpc_angular_speed->set_rollspeed(angular_speed.rollspeed);
+					rpc_angular_speed->set_pitchspeed(angular_speed.pitchspeed);
+					rpc_angular_speed->set_yawspeed(angular_speed.yawspeed);
+
+					mavsdk::rpc::telemetry::AttitudeAngularSpeedResponse rpc_angular_speed_response;
+					rpc_angular_speed_response.set_allocated_attitude_angular_speed(rpc_angular_speed);
+
+					std::lock_guard<std::mutex> lock(attitude_angular_speed_mutex);
+					writer->Write(rpc_angular_speed_response);
+				});
+
+		_stop_future.wait();
+		return grpc::Status::OK;
+	}
+
     grpc::Status SubscribeAttitudeEuler(
         grpc::ServerContext* /* context */,
         const mavsdk::rpc::telemetry::SubscribeAttitudeEulerRequest* /* request */,

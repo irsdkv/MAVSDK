@@ -109,6 +109,15 @@ public:
         float yaw_deg; /**< @brief Yaw angle in degrees, positive is clock-wise seen from above. */
     };
 
+	/**
+	 * @brief TODO.
+	 */
+	struct AngularSpeed {
+		float rollspeed; /**< @brief Roll angular speed */
+		float pitchspeed; /**< @brief Pitch angular speed */
+		float yawspeed; /**< @brief Yaw angular speed */
+	};
+
     /**
      * @brief Ground speed type.
      *
@@ -611,6 +620,13 @@ public:
      */
     EulerAngle attitude_euler_angle() const;
 
+	/**
+	 * @brief Get the current angular speed in deg/s (synchronous).
+	 *
+	 * @return Angular speed.
+	 */
+	AngularSpeed attitude_angular_speed() const;
+
     /**
      * @brief Get the camera's attitude in quaternions (synchronous).
      *
@@ -799,6 +815,20 @@ public:
      * @param callback Function to call with updates.
      */
     void attitude_euler_angle_async(attitude_euler_angle_callback_t callback);
+
+	/**
+	 * @brief Callback type for angular speed updates in quaternion.
+	 *
+	 * @param angular_speed Angular speed.
+	 */
+	typedef std::function<void(AngularSpeed angular_speed)> attitude_angular_speed_callback_t;
+
+	/**
+	 * @brief Subscribe to attitude updates in angular speed (asynchronous).
+	 *
+	 * @param callback Function to call with updates.
+	 */
+	void attitude_angular_speed_async(attitude_angular_speed_callback_t callback);
 
     /**
      * @brief Subscribe to camera attitude updates in quaternion (asynchronous).
@@ -1126,6 +1156,20 @@ bool operator==(const Telemetry::EulerAngle& lhs, const Telemetry::EulerAngle& r
  * @return A reference to the stream.
  */
 std::ostream& operator<<(std::ostream& str, Telemetry::EulerAngle const& euler_angle);
+
+/**
+ * @brief Equal operator to compare two `Telemetry::AngularSpeed` objects.
+ *
+ * @return `true` if items are equal.
+ */
+bool operator==(const Telemetry::AngularSpeed& lhs, const Telemetry::AngularSpeed& rhs);
+
+/**
+ * @brief Stream operator to print information about a `Telemetry::AngularSpeed`.
+ *
+ * @return A reference to the stream.
+ */
+std::ostream& operator<<(std::ostream& str, Telemetry::AngularSpeed const& angular_speed);
 
 /**
  * @brief Equal operator to compare two `Telemetry::GroundSpeedNED` objects.
