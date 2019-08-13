@@ -91,12 +91,12 @@ void MAVLinkParameters::get_param_async(
     }
 
     // Use cached value if available.
-    if (_cache.find(name) != _cache.end()) {
-        if (callback) {
-            callback(MAVLinkParameters::Result::SUCCESS, _cache[name]);
-        }
-        return;
-    }
+    // if (_cache.find(name) != _cache.end()) {
+    //    if (callback) {
+    //        callback(MAVLinkParameters::Result::SUCCESS, _cache[name]);
+    //    }
+    //    return;
+    //}
 
     // Otherwise push work onto queue.
     WorkItem new_work{};
