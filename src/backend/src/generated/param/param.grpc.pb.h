@@ -37,6 +37,7 @@ namespace mavsdk {
 namespace rpc {
 namespace param {
 
+// Provide raw access to get and set parameters.
 class ParamService final {
  public:
   static constexpr char const* service_full_name() {
@@ -45,6 +46,10 @@ class ParamService final {
   class StubInterface {
    public:
     virtual ~StubInterface() {}
+    //
+    // Get an int parameter.
+    //
+    // If the type is wrong, the result will be `WRONG_TYPE`.
     virtual ::grpc::Status GetIntParam(::grpc::ClientContext* context, const ::mavsdk::rpc::param::GetIntParamRequest& request, ::mavsdk::rpc::param::GetIntParamResponse* response) = 0;
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::param::GetIntParamResponse>> AsyncGetIntParam(::grpc::ClientContext* context, const ::mavsdk::rpc::param::GetIntParamRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::param::GetIntParamResponse>>(AsyncGetIntParamRaw(context, request, cq));
@@ -52,6 +57,10 @@ class ParamService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::param::GetIntParamResponse>> PrepareAsyncGetIntParam(::grpc::ClientContext* context, const ::mavsdk::rpc::param::GetIntParamRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::param::GetIntParamResponse>>(PrepareAsyncGetIntParamRaw(context, request, cq));
     }
+    //
+    // Set an int parameter.
+    //
+    // If the type is wrong, the result will be `WRONG_TYPE`.
     virtual ::grpc::Status SetIntParam(::grpc::ClientContext* context, const ::mavsdk::rpc::param::SetIntParamRequest& request, ::mavsdk::rpc::param::SetIntParamResponse* response) = 0;
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::param::SetIntParamResponse>> AsyncSetIntParam(::grpc::ClientContext* context, const ::mavsdk::rpc::param::SetIntParamRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::param::SetIntParamResponse>>(AsyncSetIntParamRaw(context, request, cq));
@@ -59,6 +68,10 @@ class ParamService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::param::SetIntParamResponse>> PrepareAsyncSetIntParam(::grpc::ClientContext* context, const ::mavsdk::rpc::param::SetIntParamRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::param::SetIntParamResponse>>(PrepareAsyncSetIntParamRaw(context, request, cq));
     }
+    //
+    // Get a float parameter.
+    //
+    // If the type is wrong, the result will be `WRONG_TYPE`.
     virtual ::grpc::Status GetFloatParam(::grpc::ClientContext* context, const ::mavsdk::rpc::param::GetFloatParamRequest& request, ::mavsdk::rpc::param::GetFloatParamResponse* response) = 0;
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::param::GetFloatParamResponse>> AsyncGetFloatParam(::grpc::ClientContext* context, const ::mavsdk::rpc::param::GetFloatParamRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::param::GetFloatParamResponse>>(AsyncGetFloatParamRaw(context, request, cq));
@@ -66,6 +79,10 @@ class ParamService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::param::GetFloatParamResponse>> PrepareAsyncGetFloatParam(::grpc::ClientContext* context, const ::mavsdk::rpc::param::GetFloatParamRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::param::GetFloatParamResponse>>(PrepareAsyncGetFloatParamRaw(context, request, cq));
     }
+    //
+    // Set a float parameter.
+    //
+    // If the type is wrong, the result will be `WRONG_TYPE`.
     virtual ::grpc::Status SetFloatParam(::grpc::ClientContext* context, const ::mavsdk::rpc::param::SetFloatParamRequest& request, ::mavsdk::rpc::param::SetFloatParamResponse* response) = 0;
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::param::SetFloatParamResponse>> AsyncSetFloatParam(::grpc::ClientContext* context, const ::mavsdk::rpc::param::SetFloatParamRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::param::SetFloatParamResponse>>(AsyncSetFloatParamRaw(context, request, cq));
@@ -76,18 +93,34 @@ class ParamService final {
     class experimental_async_interface {
      public:
       virtual ~experimental_async_interface() {}
+      //
+      // Get an int parameter.
+      //
+      // If the type is wrong, the result will be `WRONG_TYPE`.
       virtual void GetIntParam(::grpc::ClientContext* context, const ::mavsdk::rpc::param::GetIntParamRequest* request, ::mavsdk::rpc::param::GetIntParamResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void GetIntParam(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::param::GetIntParamResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void GetIntParam(::grpc::ClientContext* context, const ::mavsdk::rpc::param::GetIntParamRequest* request, ::mavsdk::rpc::param::GetIntParamResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
       virtual void GetIntParam(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::param::GetIntParamResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
+      //
+      // Set an int parameter.
+      //
+      // If the type is wrong, the result will be `WRONG_TYPE`.
       virtual void SetIntParam(::grpc::ClientContext* context, const ::mavsdk::rpc::param::SetIntParamRequest* request, ::mavsdk::rpc::param::SetIntParamResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void SetIntParam(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::param::SetIntParamResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void SetIntParam(::grpc::ClientContext* context, const ::mavsdk::rpc::param::SetIntParamRequest* request, ::mavsdk::rpc::param::SetIntParamResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
       virtual void SetIntParam(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::param::SetIntParamResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
+      //
+      // Get a float parameter.
+      //
+      // If the type is wrong, the result will be `WRONG_TYPE`.
       virtual void GetFloatParam(::grpc::ClientContext* context, const ::mavsdk::rpc::param::GetFloatParamRequest* request, ::mavsdk::rpc::param::GetFloatParamResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void GetFloatParam(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::param::GetFloatParamResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void GetFloatParam(::grpc::ClientContext* context, const ::mavsdk::rpc::param::GetFloatParamRequest* request, ::mavsdk::rpc::param::GetFloatParamResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
       virtual void GetFloatParam(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::param::GetFloatParamResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
+      //
+      // Set a float parameter.
+      //
+      // If the type is wrong, the result will be `WRONG_TYPE`.
       virtual void SetFloatParam(::grpc::ClientContext* context, const ::mavsdk::rpc::param::SetFloatParamRequest* request, ::mavsdk::rpc::param::SetFloatParamResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void SetFloatParam(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::param::SetFloatParamResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void SetFloatParam(::grpc::ClientContext* context, const ::mavsdk::rpc::param::SetFloatParamRequest* request, ::mavsdk::rpc::param::SetFloatParamResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
@@ -184,9 +217,25 @@ class ParamService final {
    public:
     Service();
     virtual ~Service();
+    //
+    // Get an int parameter.
+    //
+    // If the type is wrong, the result will be `WRONG_TYPE`.
     virtual ::grpc::Status GetIntParam(::grpc::ServerContext* context, const ::mavsdk::rpc::param::GetIntParamRequest* request, ::mavsdk::rpc::param::GetIntParamResponse* response);
+    //
+    // Set an int parameter.
+    //
+    // If the type is wrong, the result will be `WRONG_TYPE`.
     virtual ::grpc::Status SetIntParam(::grpc::ServerContext* context, const ::mavsdk::rpc::param::SetIntParamRequest* request, ::mavsdk::rpc::param::SetIntParamResponse* response);
+    //
+    // Get a float parameter.
+    //
+    // If the type is wrong, the result will be `WRONG_TYPE`.
     virtual ::grpc::Status GetFloatParam(::grpc::ServerContext* context, const ::mavsdk::rpc::param::GetFloatParamRequest* request, ::mavsdk::rpc::param::GetFloatParamResponse* response);
+    //
+    // Set a float parameter.
+    //
+    // If the type is wrong, the result will be `WRONG_TYPE`.
     virtual ::grpc::Status SetFloatParam(::grpc::ServerContext* context, const ::mavsdk::rpc::param::SetFloatParamRequest* request, ::mavsdk::rpc::param::SetFloatParamResponse* response);
   };
   template <class BaseClass>

@@ -37,6 +37,9 @@ namespace mavsdk {
 namespace rpc {
 namespace telemetry {
 
+//
+// Allow users to get vehicle telemetry and state information
+// (e.g. battery, GPS, RC connection, flight mode etc.) and set telemetry update rates.
 class TelemetryService final {
  public:
   static constexpr char const* service_full_name() {
@@ -45,6 +48,7 @@ class TelemetryService final {
   class StubInterface {
    public:
     virtual ~StubInterface() {}
+    // Subscribe to 'position' updates.
     std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::telemetry::PositionResponse>> SubscribePosition(::grpc::ClientContext* context, const ::mavsdk::rpc::telemetry::SubscribePositionRequest& request) {
       return std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::telemetry::PositionResponse>>(SubscribePositionRaw(context, request));
     }
@@ -54,6 +58,7 @@ class TelemetryService final {
     std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::telemetry::PositionResponse>> PrepareAsyncSubscribePosition(::grpc::ClientContext* context, const ::mavsdk::rpc::telemetry::SubscribePositionRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::telemetry::PositionResponse>>(PrepareAsyncSubscribePositionRaw(context, request, cq));
     }
+    // Subscribe to 'home position' updates.
     std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::telemetry::HomeResponse>> SubscribeHome(::grpc::ClientContext* context, const ::mavsdk::rpc::telemetry::SubscribeHomeRequest& request) {
       return std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::telemetry::HomeResponse>>(SubscribeHomeRaw(context, request));
     }
@@ -63,6 +68,7 @@ class TelemetryService final {
     std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::telemetry::HomeResponse>> PrepareAsyncSubscribeHome(::grpc::ClientContext* context, const ::mavsdk::rpc::telemetry::SubscribeHomeRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::telemetry::HomeResponse>>(PrepareAsyncSubscribeHomeRaw(context, request, cq));
     }
+    // Subscribe to in-air updates.
     std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::telemetry::InAirResponse>> SubscribeInAir(::grpc::ClientContext* context, const ::mavsdk::rpc::telemetry::SubscribeInAirRequest& request) {
       return std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::telemetry::InAirResponse>>(SubscribeInAirRaw(context, request));
     }
@@ -72,6 +78,7 @@ class TelemetryService final {
     std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::telemetry::InAirResponse>> PrepareAsyncSubscribeInAir(::grpc::ClientContext* context, const ::mavsdk::rpc::telemetry::SubscribeInAirRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::telemetry::InAirResponse>>(PrepareAsyncSubscribeInAirRaw(context, request, cq));
     }
+    // Subscribe to armed updates.
     std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::telemetry::ArmedResponse>> SubscribeArmed(::grpc::ClientContext* context, const ::mavsdk::rpc::telemetry::SubscribeArmedRequest& request) {
       return std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::telemetry::ArmedResponse>>(SubscribeArmedRaw(context, request));
     }
@@ -81,6 +88,7 @@ class TelemetryService final {
     std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::telemetry::ArmedResponse>> PrepareAsyncSubscribeArmed(::grpc::ClientContext* context, const ::mavsdk::rpc::telemetry::SubscribeArmedRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::telemetry::ArmedResponse>>(PrepareAsyncSubscribeArmedRaw(context, request, cq));
     }
+    // Subscribe to 'attitude' updates (quaternion).
     std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::telemetry::AttitudeQuaternionResponse>> SubscribeAttitudeQuaternion(::grpc::ClientContext* context, const ::mavsdk::rpc::telemetry::SubscribeAttitudeQuaternionRequest& request) {
       return std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::telemetry::AttitudeQuaternionResponse>>(SubscribeAttitudeQuaternionRaw(context, request));
     }
@@ -90,6 +98,7 @@ class TelemetryService final {
     std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::telemetry::AttitudeQuaternionResponse>> PrepareAsyncSubscribeAttitudeQuaternion(::grpc::ClientContext* context, const ::mavsdk::rpc::telemetry::SubscribeAttitudeQuaternionRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::telemetry::AttitudeQuaternionResponse>>(PrepareAsyncSubscribeAttitudeQuaternionRaw(context, request, cq));
     }
+    // Subscribe to 'attitude' updates (euler).
     std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::telemetry::AttitudeEulerResponse>> SubscribeAttitudeEuler(::grpc::ClientContext* context, const ::mavsdk::rpc::telemetry::SubscribeAttitudeEulerRequest& request) {
       return std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::telemetry::AttitudeEulerResponse>>(SubscribeAttitudeEulerRaw(context, request));
     }
@@ -99,6 +108,7 @@ class TelemetryService final {
     std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::telemetry::AttitudeEulerResponse>> PrepareAsyncSubscribeAttitudeEuler(::grpc::ClientContext* context, const ::mavsdk::rpc::telemetry::SubscribeAttitudeEulerRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::telemetry::AttitudeEulerResponse>>(PrepareAsyncSubscribeAttitudeEulerRaw(context, request, cq));
     }
+    // Subscribe to 'attitude' updates (angular velocity)
     std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::telemetry::AttitudeAngularVelocityBodyResponse>> SubscribeAttitudeAngularVelocityBody(::grpc::ClientContext* context, const ::mavsdk::rpc::telemetry::SubscribeAttitudeAngularVelocityBodyRequest& request) {
       return std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::telemetry::AttitudeAngularVelocityBodyResponse>>(SubscribeAttitudeAngularVelocityBodyRaw(context, request));
     }
@@ -108,6 +118,7 @@ class TelemetryService final {
     std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::telemetry::AttitudeAngularVelocityBodyResponse>> PrepareAsyncSubscribeAttitudeAngularVelocityBody(::grpc::ClientContext* context, const ::mavsdk::rpc::telemetry::SubscribeAttitudeAngularVelocityBodyRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::telemetry::AttitudeAngularVelocityBodyResponse>>(PrepareAsyncSubscribeAttitudeAngularVelocityBodyRaw(context, request, cq));
     }
+    // Subscribe to 'camera attitude' updates (quaternion).
     std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::telemetry::CameraAttitudeQuaternionResponse>> SubscribeCameraAttitudeQuaternion(::grpc::ClientContext* context, const ::mavsdk::rpc::telemetry::SubscribeCameraAttitudeQuaternionRequest& request) {
       return std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::telemetry::CameraAttitudeQuaternionResponse>>(SubscribeCameraAttitudeQuaternionRaw(context, request));
     }
@@ -117,6 +128,7 @@ class TelemetryService final {
     std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::telemetry::CameraAttitudeQuaternionResponse>> PrepareAsyncSubscribeCameraAttitudeQuaternion(::grpc::ClientContext* context, const ::mavsdk::rpc::telemetry::SubscribeCameraAttitudeQuaternionRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::telemetry::CameraAttitudeQuaternionResponse>>(PrepareAsyncSubscribeCameraAttitudeQuaternionRaw(context, request, cq));
     }
+    // Subscribe to 'camera attitude' updates (euler).
     std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::telemetry::CameraAttitudeEulerResponse>> SubscribeCameraAttitudeEuler(::grpc::ClientContext* context, const ::mavsdk::rpc::telemetry::SubscribeCameraAttitudeEulerRequest& request) {
       return std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::telemetry::CameraAttitudeEulerResponse>>(SubscribeCameraAttitudeEulerRaw(context, request));
     }
@@ -126,6 +138,7 @@ class TelemetryService final {
     std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::telemetry::CameraAttitudeEulerResponse>> PrepareAsyncSubscribeCameraAttitudeEuler(::grpc::ClientContext* context, const ::mavsdk::rpc::telemetry::SubscribeCameraAttitudeEulerRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::telemetry::CameraAttitudeEulerResponse>>(PrepareAsyncSubscribeCameraAttitudeEulerRaw(context, request, cq));
     }
+    // Subscribe to 'ground speed' updates (NED).
     std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::telemetry::GroundSpeedNedResponse>> SubscribeGroundSpeedNed(::grpc::ClientContext* context, const ::mavsdk::rpc::telemetry::SubscribeGroundSpeedNedRequest& request) {
       return std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::telemetry::GroundSpeedNedResponse>>(SubscribeGroundSpeedNedRaw(context, request));
     }
@@ -135,6 +148,7 @@ class TelemetryService final {
     std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::telemetry::GroundSpeedNedResponse>> PrepareAsyncSubscribeGroundSpeedNed(::grpc::ClientContext* context, const ::mavsdk::rpc::telemetry::SubscribeGroundSpeedNedRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::telemetry::GroundSpeedNedResponse>>(PrepareAsyncSubscribeGroundSpeedNedRaw(context, request, cq));
     }
+    // Subscribe to 'GPS info' updates.
     std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::telemetry::GpsInfoResponse>> SubscribeGpsInfo(::grpc::ClientContext* context, const ::mavsdk::rpc::telemetry::SubscribeGpsInfoRequest& request) {
       return std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::telemetry::GpsInfoResponse>>(SubscribeGpsInfoRaw(context, request));
     }
@@ -144,6 +158,7 @@ class TelemetryService final {
     std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::telemetry::GpsInfoResponse>> PrepareAsyncSubscribeGpsInfo(::grpc::ClientContext* context, const ::mavsdk::rpc::telemetry::SubscribeGpsInfoRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::telemetry::GpsInfoResponse>>(PrepareAsyncSubscribeGpsInfoRaw(context, request, cq));
     }
+    // Subscribe to 'battery' updates.
     std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::telemetry::BatteryResponse>> SubscribeBattery(::grpc::ClientContext* context, const ::mavsdk::rpc::telemetry::SubscribeBatteryRequest& request) {
       return std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::telemetry::BatteryResponse>>(SubscribeBatteryRaw(context, request));
     }
@@ -153,6 +168,7 @@ class TelemetryService final {
     std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::telemetry::BatteryResponse>> PrepareAsyncSubscribeBattery(::grpc::ClientContext* context, const ::mavsdk::rpc::telemetry::SubscribeBatteryRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::telemetry::BatteryResponse>>(PrepareAsyncSubscribeBatteryRaw(context, request, cq));
     }
+    // Subscribe to 'flight mode' updates.
     std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::telemetry::FlightModeResponse>> SubscribeFlightMode(::grpc::ClientContext* context, const ::mavsdk::rpc::telemetry::SubscribeFlightModeRequest& request) {
       return std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::telemetry::FlightModeResponse>>(SubscribeFlightModeRaw(context, request));
     }
@@ -162,6 +178,7 @@ class TelemetryService final {
     std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::telemetry::FlightModeResponse>> PrepareAsyncSubscribeFlightMode(::grpc::ClientContext* context, const ::mavsdk::rpc::telemetry::SubscribeFlightModeRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::telemetry::FlightModeResponse>>(PrepareAsyncSubscribeFlightModeRaw(context, request, cq));
     }
+    // Subscribe to 'health' updates.
     std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::telemetry::HealthResponse>> SubscribeHealth(::grpc::ClientContext* context, const ::mavsdk::rpc::telemetry::SubscribeHealthRequest& request) {
       return std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::telemetry::HealthResponse>>(SubscribeHealthRaw(context, request));
     }
@@ -171,6 +188,7 @@ class TelemetryService final {
     std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::telemetry::HealthResponse>> PrepareAsyncSubscribeHealth(::grpc::ClientContext* context, const ::mavsdk::rpc::telemetry::SubscribeHealthRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::telemetry::HealthResponse>>(PrepareAsyncSubscribeHealthRaw(context, request, cq));
     }
+    // Subscribe to 'RC status' updates.
     std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::telemetry::RcStatusResponse>> SubscribeRcStatus(::grpc::ClientContext* context, const ::mavsdk::rpc::telemetry::SubscribeRcStatusRequest& request) {
       return std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::telemetry::RcStatusResponse>>(SubscribeRcStatusRaw(context, request));
     }
@@ -180,6 +198,7 @@ class TelemetryService final {
     std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::telemetry::RcStatusResponse>> PrepareAsyncSubscribeRcStatus(::grpc::ClientContext* context, const ::mavsdk::rpc::telemetry::SubscribeRcStatusRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::telemetry::RcStatusResponse>>(PrepareAsyncSubscribeRcStatusRaw(context, request, cq));
     }
+    // Subscribe to 'status text' updates.
     std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::telemetry::StatusTextResponse>> SubscribeStatusText(::grpc::ClientContext* context, const ::mavsdk::rpc::telemetry::SubscribeStatusTextRequest& request) {
       return std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::telemetry::StatusTextResponse>>(SubscribeStatusTextRaw(context, request));
     }
@@ -210,21 +229,37 @@ class TelemetryService final {
     class experimental_async_interface {
      public:
       virtual ~experimental_async_interface() {}
+      // Subscribe to 'position' updates.
       virtual void SubscribePosition(::grpc::ClientContext* context, ::mavsdk::rpc::telemetry::SubscribePositionRequest* request, ::grpc::experimental::ClientReadReactor< ::mavsdk::rpc::telemetry::PositionResponse>* reactor) = 0;
+      // Subscribe to 'home position' updates.
       virtual void SubscribeHome(::grpc::ClientContext* context, ::mavsdk::rpc::telemetry::SubscribeHomeRequest* request, ::grpc::experimental::ClientReadReactor< ::mavsdk::rpc::telemetry::HomeResponse>* reactor) = 0;
+      // Subscribe to in-air updates.
       virtual void SubscribeInAir(::grpc::ClientContext* context, ::mavsdk::rpc::telemetry::SubscribeInAirRequest* request, ::grpc::experimental::ClientReadReactor< ::mavsdk::rpc::telemetry::InAirResponse>* reactor) = 0;
+      // Subscribe to armed updates.
       virtual void SubscribeArmed(::grpc::ClientContext* context, ::mavsdk::rpc::telemetry::SubscribeArmedRequest* request, ::grpc::experimental::ClientReadReactor< ::mavsdk::rpc::telemetry::ArmedResponse>* reactor) = 0;
+      // Subscribe to 'attitude' updates (quaternion).
       virtual void SubscribeAttitudeQuaternion(::grpc::ClientContext* context, ::mavsdk::rpc::telemetry::SubscribeAttitudeQuaternionRequest* request, ::grpc::experimental::ClientReadReactor< ::mavsdk::rpc::telemetry::AttitudeQuaternionResponse>* reactor) = 0;
+      // Subscribe to 'attitude' updates (euler).
       virtual void SubscribeAttitudeEuler(::grpc::ClientContext* context, ::mavsdk::rpc::telemetry::SubscribeAttitudeEulerRequest* request, ::grpc::experimental::ClientReadReactor< ::mavsdk::rpc::telemetry::AttitudeEulerResponse>* reactor) = 0;
+      // Subscribe to 'attitude' updates (angular velocity)
       virtual void SubscribeAttitudeAngularVelocityBody(::grpc::ClientContext* context, ::mavsdk::rpc::telemetry::SubscribeAttitudeAngularVelocityBodyRequest* request, ::grpc::experimental::ClientReadReactor< ::mavsdk::rpc::telemetry::AttitudeAngularVelocityBodyResponse>* reactor) = 0;
+      // Subscribe to 'camera attitude' updates (quaternion).
       virtual void SubscribeCameraAttitudeQuaternion(::grpc::ClientContext* context, ::mavsdk::rpc::telemetry::SubscribeCameraAttitudeQuaternionRequest* request, ::grpc::experimental::ClientReadReactor< ::mavsdk::rpc::telemetry::CameraAttitudeQuaternionResponse>* reactor) = 0;
+      // Subscribe to 'camera attitude' updates (euler).
       virtual void SubscribeCameraAttitudeEuler(::grpc::ClientContext* context, ::mavsdk::rpc::telemetry::SubscribeCameraAttitudeEulerRequest* request, ::grpc::experimental::ClientReadReactor< ::mavsdk::rpc::telemetry::CameraAttitudeEulerResponse>* reactor) = 0;
+      // Subscribe to 'ground speed' updates (NED).
       virtual void SubscribeGroundSpeedNed(::grpc::ClientContext* context, ::mavsdk::rpc::telemetry::SubscribeGroundSpeedNedRequest* request, ::grpc::experimental::ClientReadReactor< ::mavsdk::rpc::telemetry::GroundSpeedNedResponse>* reactor) = 0;
+      // Subscribe to 'GPS info' updates.
       virtual void SubscribeGpsInfo(::grpc::ClientContext* context, ::mavsdk::rpc::telemetry::SubscribeGpsInfoRequest* request, ::grpc::experimental::ClientReadReactor< ::mavsdk::rpc::telemetry::GpsInfoResponse>* reactor) = 0;
+      // Subscribe to 'battery' updates.
       virtual void SubscribeBattery(::grpc::ClientContext* context, ::mavsdk::rpc::telemetry::SubscribeBatteryRequest* request, ::grpc::experimental::ClientReadReactor< ::mavsdk::rpc::telemetry::BatteryResponse>* reactor) = 0;
+      // Subscribe to 'flight mode' updates.
       virtual void SubscribeFlightMode(::grpc::ClientContext* context, ::mavsdk::rpc::telemetry::SubscribeFlightModeRequest* request, ::grpc::experimental::ClientReadReactor< ::mavsdk::rpc::telemetry::FlightModeResponse>* reactor) = 0;
+      // Subscribe to 'health' updates.
       virtual void SubscribeHealth(::grpc::ClientContext* context, ::mavsdk::rpc::telemetry::SubscribeHealthRequest* request, ::grpc::experimental::ClientReadReactor< ::mavsdk::rpc::telemetry::HealthResponse>* reactor) = 0;
+      // Subscribe to 'RC status' updates.
       virtual void SubscribeRcStatus(::grpc::ClientContext* context, ::mavsdk::rpc::telemetry::SubscribeRcStatusRequest* request, ::grpc::experimental::ClientReadReactor< ::mavsdk::rpc::telemetry::RcStatusResponse>* reactor) = 0;
+      // Subscribe to 'status text' updates.
       virtual void SubscribeStatusText(::grpc::ClientContext* context, ::mavsdk::rpc::telemetry::SubscribeStatusTextRequest* request, ::grpc::experimental::ClientReadReactor< ::mavsdk::rpc::telemetry::StatusTextResponse>* reactor) = 0;
       virtual void SubscribeActuatorControlTarget(::grpc::ClientContext* context, ::mavsdk::rpc::telemetry::SubscribeActuatorControlTargetRequest* request, ::grpc::experimental::ClientReadReactor< ::mavsdk::rpc::telemetry::ActuatorControlTargetResponse>* reactor) = 0;
       virtual void SubscribeActuatorOutputStatus(::grpc::ClientContext* context, ::mavsdk::rpc::telemetry::SubscribeActuatorOutputStatusRequest* request, ::grpc::experimental::ClientReadReactor< ::mavsdk::rpc::telemetry::ActuatorOutputStatusResponse>* reactor) = 0;
@@ -562,21 +597,37 @@ class TelemetryService final {
    public:
     Service();
     virtual ~Service();
+    // Subscribe to 'position' updates.
     virtual ::grpc::Status SubscribePosition(::grpc::ServerContext* context, const ::mavsdk::rpc::telemetry::SubscribePositionRequest* request, ::grpc::ServerWriter< ::mavsdk::rpc::telemetry::PositionResponse>* writer);
+    // Subscribe to 'home position' updates.
     virtual ::grpc::Status SubscribeHome(::grpc::ServerContext* context, const ::mavsdk::rpc::telemetry::SubscribeHomeRequest* request, ::grpc::ServerWriter< ::mavsdk::rpc::telemetry::HomeResponse>* writer);
+    // Subscribe to in-air updates.
     virtual ::grpc::Status SubscribeInAir(::grpc::ServerContext* context, const ::mavsdk::rpc::telemetry::SubscribeInAirRequest* request, ::grpc::ServerWriter< ::mavsdk::rpc::telemetry::InAirResponse>* writer);
+    // Subscribe to armed updates.
     virtual ::grpc::Status SubscribeArmed(::grpc::ServerContext* context, const ::mavsdk::rpc::telemetry::SubscribeArmedRequest* request, ::grpc::ServerWriter< ::mavsdk::rpc::telemetry::ArmedResponse>* writer);
+    // Subscribe to 'attitude' updates (quaternion).
     virtual ::grpc::Status SubscribeAttitudeQuaternion(::grpc::ServerContext* context, const ::mavsdk::rpc::telemetry::SubscribeAttitudeQuaternionRequest* request, ::grpc::ServerWriter< ::mavsdk::rpc::telemetry::AttitudeQuaternionResponse>* writer);
+    // Subscribe to 'attitude' updates (euler).
     virtual ::grpc::Status SubscribeAttitudeEuler(::grpc::ServerContext* context, const ::mavsdk::rpc::telemetry::SubscribeAttitudeEulerRequest* request, ::grpc::ServerWriter< ::mavsdk::rpc::telemetry::AttitudeEulerResponse>* writer);
+    // Subscribe to 'attitude' updates (angular velocity)
     virtual ::grpc::Status SubscribeAttitudeAngularVelocityBody(::grpc::ServerContext* context, const ::mavsdk::rpc::telemetry::SubscribeAttitudeAngularVelocityBodyRequest* request, ::grpc::ServerWriter< ::mavsdk::rpc::telemetry::AttitudeAngularVelocityBodyResponse>* writer);
+    // Subscribe to 'camera attitude' updates (quaternion).
     virtual ::grpc::Status SubscribeCameraAttitudeQuaternion(::grpc::ServerContext* context, const ::mavsdk::rpc::telemetry::SubscribeCameraAttitudeQuaternionRequest* request, ::grpc::ServerWriter< ::mavsdk::rpc::telemetry::CameraAttitudeQuaternionResponse>* writer);
+    // Subscribe to 'camera attitude' updates (euler).
     virtual ::grpc::Status SubscribeCameraAttitudeEuler(::grpc::ServerContext* context, const ::mavsdk::rpc::telemetry::SubscribeCameraAttitudeEulerRequest* request, ::grpc::ServerWriter< ::mavsdk::rpc::telemetry::CameraAttitudeEulerResponse>* writer);
+    // Subscribe to 'ground speed' updates (NED).
     virtual ::grpc::Status SubscribeGroundSpeedNed(::grpc::ServerContext* context, const ::mavsdk::rpc::telemetry::SubscribeGroundSpeedNedRequest* request, ::grpc::ServerWriter< ::mavsdk::rpc::telemetry::GroundSpeedNedResponse>* writer);
+    // Subscribe to 'GPS info' updates.
     virtual ::grpc::Status SubscribeGpsInfo(::grpc::ServerContext* context, const ::mavsdk::rpc::telemetry::SubscribeGpsInfoRequest* request, ::grpc::ServerWriter< ::mavsdk::rpc::telemetry::GpsInfoResponse>* writer);
+    // Subscribe to 'battery' updates.
     virtual ::grpc::Status SubscribeBattery(::grpc::ServerContext* context, const ::mavsdk::rpc::telemetry::SubscribeBatteryRequest* request, ::grpc::ServerWriter< ::mavsdk::rpc::telemetry::BatteryResponse>* writer);
+    // Subscribe to 'flight mode' updates.
     virtual ::grpc::Status SubscribeFlightMode(::grpc::ServerContext* context, const ::mavsdk::rpc::telemetry::SubscribeFlightModeRequest* request, ::grpc::ServerWriter< ::mavsdk::rpc::telemetry::FlightModeResponse>* writer);
+    // Subscribe to 'health' updates.
     virtual ::grpc::Status SubscribeHealth(::grpc::ServerContext* context, const ::mavsdk::rpc::telemetry::SubscribeHealthRequest* request, ::grpc::ServerWriter< ::mavsdk::rpc::telemetry::HealthResponse>* writer);
+    // Subscribe to 'RC status' updates.
     virtual ::grpc::Status SubscribeRcStatus(::grpc::ServerContext* context, const ::mavsdk::rpc::telemetry::SubscribeRcStatusRequest* request, ::grpc::ServerWriter< ::mavsdk::rpc::telemetry::RcStatusResponse>* writer);
+    // Subscribe to 'status text' updates.
     virtual ::grpc::Status SubscribeStatusText(::grpc::ServerContext* context, const ::mavsdk::rpc::telemetry::SubscribeStatusTextRequest* request, ::grpc::ServerWriter< ::mavsdk::rpc::telemetry::StatusTextResponse>* writer);
     virtual ::grpc::Status SubscribeActuatorControlTarget(::grpc::ServerContext* context, const ::mavsdk::rpc::telemetry::SubscribeActuatorControlTargetRequest* request, ::grpc::ServerWriter< ::mavsdk::rpc::telemetry::ActuatorControlTargetResponse>* writer);
     virtual ::grpc::Status SubscribeActuatorOutputStatus(::grpc::ServerContext* context, const ::mavsdk::rpc::telemetry::SubscribeActuatorOutputStatusRequest* request, ::grpc::ServerWriter< ::mavsdk::rpc::telemetry::ActuatorOutputStatusResponse>* writer);

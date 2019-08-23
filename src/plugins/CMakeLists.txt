@@ -10,7 +10,7 @@ add_subdirectory(follow_me)
 add_subdirectory(gimbal)
 add_subdirectory(info)
 add_subdirectory(log_files)
-#add_subdirectory(logging) # Not implemented completely
+add_subdirectory(logging)
 add_subdirectory(mission)
 add_subdirectory(mission_raw)
 add_subdirectory(offboard)

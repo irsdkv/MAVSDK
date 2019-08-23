@@ -94,7 +94,7 @@ if (DROP_DEBUG EQUAL 1)
 
     add_executable(drop_debug
         debug_helpers/drop_debug_main.cpp
-    )
+            backend/src/plugins/logging/logging_service_impl.h)
 
     target_link_libraries(drop_debug
         mavsdk

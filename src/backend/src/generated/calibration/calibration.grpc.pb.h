@@ -37,6 +37,7 @@ namespace mavsdk {
 namespace rpc {
 namespace calibration {
 
+// Enable to calibrate sensors of a drone such as gyro, accelerometer, and magnetometer.
 class CalibrationService final {
  public:
   static constexpr char const* service_full_name() {
@@ -45,6 +46,7 @@ class CalibrationService final {
   class StubInterface {
    public:
     virtual ~StubInterface() {}
+    // Perform gyro calibration.
     std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::calibration::CalibrateGyroResponse>> SubscribeCalibrateGyro(::grpc::ClientContext* context, const ::mavsdk::rpc::calibration::SubscribeCalibrateGyroRequest& request) {
       return std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::calibration::CalibrateGyroResponse>>(SubscribeCalibrateGyroRaw(context, request));
     }
@@ -54,6 +56,7 @@ class CalibrationService final {
     std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::calibration::CalibrateGyroResponse>> PrepareAsyncSubscribeCalibrateGyro(::grpc::ClientContext* context, const ::mavsdk::rpc::calibration::SubscribeCalibrateGyroRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::calibration::CalibrateGyroResponse>>(PrepareAsyncSubscribeCalibrateGyroRaw(context, request, cq));
     }
+    // Perform accelerometer calibration.
     std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::calibration::CalibrateAccelerometerResponse>> SubscribeCalibrateAccelerometer(::grpc::ClientContext* context, const ::mavsdk::rpc::calibration::SubscribeCalibrateAccelerometerRequest& request) {
       return std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::calibration::CalibrateAccelerometerResponse>>(SubscribeCalibrateAccelerometerRaw(context, request));
     }
@@ -63,6 +66,7 @@ class CalibrationService final {
     std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::calibration::CalibrateAccelerometerResponse>> PrepareAsyncSubscribeCalibrateAccelerometer(::grpc::ClientContext* context, const ::mavsdk::rpc::calibration::SubscribeCalibrateAccelerometerRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::calibration::CalibrateAccelerometerResponse>>(PrepareAsyncSubscribeCalibrateAccelerometerRaw(context, request, cq));
     }
+    // Perform magnetometer caliration.
     std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::calibration::CalibrateMagnetometerResponse>> SubscribeCalibrateMagnetometer(::grpc::ClientContext* context, const ::mavsdk::rpc::calibration::SubscribeCalibrateMagnetometerRequest& request) {
       return std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::calibration::CalibrateMagnetometerResponse>>(SubscribeCalibrateMagnetometerRaw(context, request));
     }
@@ -72,6 +76,7 @@ class CalibrationService final {
     std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::calibration::CalibrateMagnetometerResponse>> PrepareAsyncSubscribeCalibrateMagnetometer(::grpc::ClientContext* context, const ::mavsdk::rpc::calibration::SubscribeCalibrateMagnetometerRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::calibration::CalibrateMagnetometerResponse>>(PrepareAsyncSubscribeCalibrateMagnetometerRaw(context, request, cq));
     }
+    // Perform gimbal accelerometer calibration.
     std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::calibration::CalibrateGimbalAccelerometerResponse>> SubscribeCalibrateGimbalAccelerometer(::grpc::ClientContext* context, const ::mavsdk::rpc::calibration::SubscribeCalibrateGimbalAccelerometerRequest& request) {
       return std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::calibration::CalibrateGimbalAccelerometerResponse>>(SubscribeCalibrateGimbalAccelerometerRaw(context, request));
     }
@@ -81,6 +86,7 @@ class CalibrationService final {
     std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::calibration::CalibrateGimbalAccelerometerResponse>> PrepareAsyncSubscribeCalibrateGimbalAccelerometer(::grpc::ClientContext* context, const ::mavsdk::rpc::calibration::SubscribeCalibrateGimbalAccelerometerRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::calibration::CalibrateGimbalAccelerometerResponse>>(PrepareAsyncSubscribeCalibrateGimbalAccelerometerRaw(context, request, cq));
     }
+    // Cancel ongoing calibration process.
     virtual ::grpc::Status Cancel(::grpc::ClientContext* context, const ::mavsdk::rpc::calibration::CancelRequest& request, ::mavsdk::rpc::calibration::CancelResponse* response) = 0;
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::calibration::CancelResponse>> AsyncCancel(::grpc::ClientContext* context, const ::mavsdk::rpc::calibration::CancelRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::calibration::CancelResponse>>(AsyncCancelRaw(context, request, cq));
@@ -91,10 +97,15 @@ class CalibrationService final {
     class experimental_async_interface {
      public:
       virtual ~experimental_async_interface() {}
+      // Perform gyro calibration.
       virtual void SubscribeCalibrateGyro(::grpc::ClientContext* context, ::mavsdk::rpc::calibration::SubscribeCalibrateGyroRequest* request, ::grpc::experimental::ClientReadReactor< ::mavsdk::rpc::calibration::CalibrateGyroResponse>* reactor) = 0;
+      // Perform accelerometer calibration.
       virtual void SubscribeCalibrateAccelerometer(::grpc::ClientContext* context, ::mavsdk::rpc::calibration::SubscribeCalibrateAccelerometerRequest* request, ::grpc::experimental::ClientReadReactor< ::mavsdk::rpc::calibration::CalibrateAccelerometerResponse>* reactor) = 0;
+      // Perform magnetometer caliration.
       virtual void SubscribeCalibrateMagnetometer(::grpc::ClientContext* context, ::mavsdk::rpc::calibration::SubscribeCalibrateMagnetometerRequest* request, ::grpc::experimental::ClientReadReactor< ::mavsdk::rpc::calibration::CalibrateMagnetometerResponse>* reactor) = 0;
+      // Perform gimbal accelerometer calibration.
       virtual void SubscribeCalibrateGimbalAccelerometer(::grpc::ClientContext* context, ::mavsdk::rpc::calibration::SubscribeCalibrateGimbalAccelerometerRequest* request, ::grpc::experimental::ClientReadReactor< ::mavsdk::rpc::calibration::CalibrateGimbalAccelerometerResponse>* reactor) = 0;
+      // Cancel ongoing calibration process.
       virtual void Cancel(::grpc::ClientContext* context, const ::mavsdk::rpc::calibration::CancelRequest* request, ::mavsdk::rpc::calibration::CancelResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void Cancel(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::calibration::CancelResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void Cancel(::grpc::ClientContext* context, const ::mavsdk::rpc::calibration::CancelRequest* request, ::mavsdk::rpc::calibration::CancelResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
@@ -211,10 +222,15 @@ class CalibrationService final {
    public:
     Service();
     virtual ~Service();
+    // Perform gyro calibration.
     virtual ::grpc::Status SubscribeCalibrateGyro(::grpc::ServerContext* context, const ::mavsdk::rpc::calibration::SubscribeCalibrateGyroRequest* request, ::grpc::ServerWriter< ::mavsdk::rpc::calibration::CalibrateGyroResponse>* writer);
+    // Perform accelerometer calibration.
     virtual ::grpc::Status SubscribeCalibrateAccelerometer(::grpc::ServerContext* context, const ::mavsdk::rpc::calibration::SubscribeCalibrateAccelerometerRequest* request, ::grpc::ServerWriter< ::mavsdk::rpc::calibration::CalibrateAccelerometerResponse>* writer);
+    // Perform magnetometer caliration.
     virtual ::grpc::Status SubscribeCalibrateMagnetometer(::grpc::ServerContext* context, const ::mavsdk::rpc::calibration::SubscribeCalibrateMagnetometerRequest* request, ::grpc::ServerWriter< ::mavsdk::rpc::calibration::CalibrateMagnetometerResponse>* writer);
+    // Perform gimbal accelerometer calibration.
     virtual ::grpc::Status SubscribeCalibrateGimbalAccelerometer(::grpc::ServerContext* context, const ::mavsdk::rpc::calibration::SubscribeCalibrateGimbalAccelerometerRequest* request, ::grpc::ServerWriter< ::mavsdk::rpc::calibration::CalibrateGimbalAccelerometerResponse>* writer);
+    // Cancel ongoing calibration process.
     virtual ::grpc::Status Cancel(::grpc::ServerContext* context, const ::mavsdk::rpc::calibration::CancelRequest* request, ::mavsdk::rpc::calibration::CancelResponse* response);
   };
   template <class BaseClass>

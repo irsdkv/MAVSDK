@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.1)
 
-set(COMPONENTS_LIST action calibration camera core gimbal info mission offboard param telemetry)
+set(COMPONENTS_LIST action calibration camera core gimbal info mission offboard param telemetry logging)
 
 foreach(COMPONENT_NAME ${COMPONENTS_LIST})
     add_library(${COMPONENT_NAME}_proto_gens STATIC
@@ -49,6 +49,7 @@ target_link_libraries(mavsdk_server
     mavsdk_offboard
     mavsdk_telemetry
     mavsdk_info
+    mavsdk_logging
     mavsdk_param
     mavsdk
     gRPC::grpc++

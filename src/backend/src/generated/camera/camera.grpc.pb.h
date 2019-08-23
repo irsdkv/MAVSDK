@@ -37,6 +37,14 @@ namespace mavsdk {
 namespace rpc {
 namespace camera {
 
+//
+// Can be used to manage cameras that implement the MAVLink
+// Camera Protocol: https://mavlink.io/en/protocol/camera.html.
+//
+// Currently only a single camera is supported.
+// When multiple cameras are supported the plugin will need to be
+// instantiated separately for every camera and the camera selected using
+// `select_camera`.
 class CameraService final {
  public:
   static constexpr char const* service_full_name() {
@@ -45,6 +53,8 @@ class CameraService final {
   class StubInterface {
    public:
     virtual ~StubInterface() {}
+    //
+    // Take one photo.
     virtual ::grpc::Status TakePhoto(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::TakePhotoRequest& request, ::mavsdk::rpc::camera::TakePhotoResponse* response) = 0;
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::camera::TakePhotoResponse>> AsyncTakePhoto(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::TakePhotoRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::camera::TakePhotoResponse>>(AsyncTakePhotoRaw(context, request, cq));
@@ -52,6 +62,8 @@ class CameraService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::camera::TakePhotoResponse>> PrepareAsyncTakePhoto(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::TakePhotoRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::camera::TakePhotoResponse>>(PrepareAsyncTakePhotoRaw(context, request, cq));
     }
+    //
+    // Start photo timelapse with a given interval.
     virtual ::grpc::Status StartPhotoInterval(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::StartPhotoIntervalRequest& request, ::mavsdk::rpc::camera::StartPhotoIntervalResponse* response) = 0;
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::camera::StartPhotoIntervalResponse>> AsyncStartPhotoInterval(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::StartPhotoIntervalRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::camera::StartPhotoIntervalResponse>>(AsyncStartPhotoIntervalRaw(context, request, cq));
@@ -59,6 +71,8 @@ class CameraService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::camera::StartPhotoIntervalResponse>> PrepareAsyncStartPhotoInterval(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::StartPhotoIntervalRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::camera::StartPhotoIntervalResponse>>(PrepareAsyncStartPhotoIntervalRaw(context, request, cq));
     }
+    //
+    // Stop a running photo timelapse.
     virtual ::grpc::Status StopPhotoInterval(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::StopPhotoIntervalRequest& request, ::mavsdk::rpc::camera::StopPhotoIntervalResponse* response) = 0;
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::camera::StopPhotoIntervalResponse>> AsyncStopPhotoInterval(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::StopPhotoIntervalRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::camera::StopPhotoIntervalResponse>>(AsyncStopPhotoIntervalRaw(context, request, cq));
@@ -66,6 +80,8 @@ class CameraService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::camera::StopPhotoIntervalResponse>> PrepareAsyncStopPhotoInterval(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::StopPhotoIntervalRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::camera::StopPhotoIntervalResponse>>(PrepareAsyncStopPhotoIntervalRaw(context, request, cq));
     }
+    //
+    // Start a video recording.
     virtual ::grpc::Status StartVideo(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::StartVideoRequest& request, ::mavsdk::rpc::camera::StartVideoResponse* response) = 0;
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::camera::StartVideoResponse>> AsyncStartVideo(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::StartVideoRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::camera::StartVideoResponse>>(AsyncStartVideoRaw(context, request, cq));
@@ -73,6 +89,8 @@ class CameraService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::camera::StartVideoResponse>> PrepareAsyncStartVideo(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::StartVideoRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::camera::StartVideoResponse>>(PrepareAsyncStartVideoRaw(context, request, cq));
     }
+    //
+    // Stop a running video recording.
     virtual ::grpc::Status StopVideo(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::StopVideoRequest& request, ::mavsdk::rpc::camera::StopVideoResponse* response) = 0;
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::camera::StopVideoResponse>> AsyncStopVideo(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::StopVideoRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::camera::StopVideoResponse>>(AsyncStopVideoRaw(context, request, cq));
@@ -80,6 +98,8 @@ class CameraService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::camera::StopVideoResponse>> PrepareAsyncStopVideo(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::StopVideoRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::camera::StopVideoResponse>>(PrepareAsyncStopVideoRaw(context, request, cq));
     }
+    //
+    // Start video streaming.
     virtual ::grpc::Status StartVideoStreaming(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::StartVideoStreamingRequest& request, ::mavsdk::rpc::camera::StartVideoStreamingResponse* response) = 0;
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::camera::StartVideoStreamingResponse>> AsyncStartVideoStreaming(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::StartVideoStreamingRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::camera::StartVideoStreamingResponse>>(AsyncStartVideoStreamingRaw(context, request, cq));
@@ -87,6 +107,8 @@ class CameraService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::camera::StartVideoStreamingResponse>> PrepareAsyncStartVideoStreaming(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::StartVideoStreamingRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::camera::StartVideoStreamingResponse>>(PrepareAsyncStartVideoStreamingRaw(context, request, cq));
     }
+    //
+    // Stop current video streaming.
     virtual ::grpc::Status StopVideoStreaming(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::StopVideoStreamingRequest& request, ::mavsdk::rpc::camera::StopVideoStreamingResponse* response) = 0;
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::camera::StopVideoStreamingResponse>> AsyncStopVideoStreaming(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::StopVideoStreamingRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::camera::StopVideoStreamingResponse>>(AsyncStopVideoStreamingRaw(context, request, cq));
@@ -94,6 +116,8 @@ class CameraService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::camera::StopVideoStreamingResponse>> PrepareAsyncStopVideoStreaming(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::StopVideoStreamingRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::camera::StopVideoStreamingResponse>>(PrepareAsyncStopVideoStreamingRaw(context, request, cq));
     }
+    //
+    // Set camera mode.
     virtual ::grpc::Status SetMode(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::SetModeRequest& request, ::mavsdk::rpc::camera::SetModeResponse* response) = 0;
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::camera::SetModeResponse>> AsyncSetMode(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::SetModeRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::camera::SetModeResponse>>(AsyncSetModeRaw(context, request, cq));
@@ -101,6 +125,8 @@ class CameraService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::camera::SetModeResponse>> PrepareAsyncSetMode(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::SetModeRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::camera::SetModeResponse>>(PrepareAsyncSetModeRaw(context, request, cq));
     }
+    //
+    // Subscribe to camera mode updates.
     std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::camera::ModeResponse>> SubscribeMode(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::SubscribeModeRequest& request) {
       return std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::camera::ModeResponse>>(SubscribeModeRaw(context, request));
     }
@@ -110,6 +136,8 @@ class CameraService final {
     std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::camera::ModeResponse>> PrepareAsyncSubscribeMode(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::SubscribeModeRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::camera::ModeResponse>>(PrepareAsyncSubscribeModeRaw(context, request, cq));
     }
+    //
+    // Subscribe to video stream info updates.
     std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::camera::VideoStreamInfoResponse>> SubscribeVideoStreamInfo(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::SubscribeVideoStreamInfoRequest& request) {
       return std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::camera::VideoStreamInfoResponse>>(SubscribeVideoStreamInfoRaw(context, request));
     }
@@ -119,6 +147,8 @@ class CameraService final {
     std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::camera::VideoStreamInfoResponse>> PrepareAsyncSubscribeVideoStreamInfo(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::SubscribeVideoStreamInfoRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::camera::VideoStreamInfoResponse>>(PrepareAsyncSubscribeVideoStreamInfoRaw(context, request, cq));
     }
+    //
+    // Subscribe to capture info updates.
     std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::camera::CaptureInfoResponse>> SubscribeCaptureInfo(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::SubscribeCaptureInfoRequest& request) {
       return std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::camera::CaptureInfoResponse>>(SubscribeCaptureInfoRaw(context, request));
     }
@@ -128,6 +158,8 @@ class CameraService final {
     std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::camera::CaptureInfoResponse>> PrepareAsyncSubscribeCaptureInfo(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::SubscribeCaptureInfoRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::camera::CaptureInfoResponse>>(PrepareAsyncSubscribeCaptureInfoRaw(context, request, cq));
     }
+    //
+    // Subscribe to camera status updates.
     std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::camera::CameraStatusResponse>> SubscribeCameraStatus(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::SubscribeCameraStatusRequest& request) {
       return std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::camera::CameraStatusResponse>>(SubscribeCameraStatusRaw(context, request));
     }
@@ -137,6 +169,8 @@ class CameraService final {
     std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::camera::CameraStatusResponse>> PrepareAsyncSubscribeCameraStatus(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::SubscribeCameraStatusRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::camera::CameraStatusResponse>>(PrepareAsyncSubscribeCameraStatusRaw(context, request, cq));
     }
+    //
+    // Get the list of current camera settings.
     std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::camera::CurrentSettingsResponse>> SubscribeCurrentSettings(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::SubscribeCurrentSettingsRequest& request) {
       return std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::camera::CurrentSettingsResponse>>(SubscribeCurrentSettingsRaw(context, request));
     }
@@ -146,6 +180,8 @@ class CameraService final {
     std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::camera::CurrentSettingsResponse>> PrepareAsyncSubscribeCurrentSettings(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::SubscribeCurrentSettingsRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::camera::CurrentSettingsResponse>>(PrepareAsyncSubscribeCurrentSettingsRaw(context, request, cq));
     }
+    //
+    // Get the list of settings that can be changed.
     std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::camera::PossibleSettingOptionsResponse>> SubscribePossibleSettingOptions(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::SubscribePossibleSettingOptionsRequest& request) {
       return std::unique_ptr< ::grpc::ClientReaderInterface< ::mavsdk::rpc::camera::PossibleSettingOptionsResponse>>(SubscribePossibleSettingOptionsRaw(context, request));
     }
@@ -155,6 +191,8 @@ class CameraService final {
     std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::camera::PossibleSettingOptionsResponse>> PrepareAsyncSubscribePossibleSettingOptions(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::SubscribePossibleSettingOptionsRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::mavsdk::rpc::camera::PossibleSettingOptionsResponse>>(PrepareAsyncSubscribePossibleSettingOptionsRaw(context, request, cq));
     }
+    //
+    // Set a setting to some value.
     virtual ::grpc::Status SetSetting(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::SetSettingRequest& request, ::mavsdk::rpc::camera::SetSettingResponse* response) = 0;
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::camera::SetSettingResponse>> AsyncSetSetting(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::SetSettingRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::camera::SetSettingResponse>>(AsyncSetSettingRaw(context, request, cq));
@@ -165,44 +203,74 @@ class CameraService final {
     class experimental_async_interface {
      public:
       virtual ~experimental_async_interface() {}
+      //
+      // Take one photo.
       virtual void TakePhoto(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::TakePhotoRequest* request, ::mavsdk::rpc::camera::TakePhotoResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void TakePhoto(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::camera::TakePhotoResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void TakePhoto(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::TakePhotoRequest* request, ::mavsdk::rpc::camera::TakePhotoResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
       virtual void TakePhoto(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::camera::TakePhotoResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
+      //
+      // Start photo timelapse with a given interval.
       virtual void StartPhotoInterval(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::StartPhotoIntervalRequest* request, ::mavsdk::rpc::camera::StartPhotoIntervalResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void StartPhotoInterval(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::camera::StartPhotoIntervalResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void StartPhotoInterval(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::StartPhotoIntervalRequest* request, ::mavsdk::rpc::camera::StartPhotoIntervalResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
       virtual void StartPhotoInterval(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::camera::StartPhotoIntervalResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
+      //
+      // Stop a running photo timelapse.
       virtual void StopPhotoInterval(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::StopPhotoIntervalRequest* request, ::mavsdk::rpc::camera::StopPhotoIntervalResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void StopPhotoInterval(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::camera::StopPhotoIntervalResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void StopPhotoInterval(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::StopPhotoIntervalRequest* request, ::mavsdk::rpc::camera::StopPhotoIntervalResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
       virtual void StopPhotoInterval(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::camera::StopPhotoIntervalResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
+      //
+      // Start a video recording.
       virtual void StartVideo(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::StartVideoRequest* request, ::mavsdk::rpc::camera::StartVideoResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void StartVideo(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::camera::StartVideoResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void StartVideo(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::StartVideoRequest* request, ::mavsdk::rpc::camera::StartVideoResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
       virtual void StartVideo(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::camera::StartVideoResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
+      //
+      // Stop a running video recording.
       virtual void StopVideo(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::StopVideoRequest* request, ::mavsdk::rpc::camera::StopVideoResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void StopVideo(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::camera::StopVideoResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void StopVideo(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::StopVideoRequest* request, ::mavsdk::rpc::camera::StopVideoResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
       virtual void StopVideo(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::camera::StopVideoResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
+      //
+      // Start video streaming.
       virtual void StartVideoStreaming(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::StartVideoStreamingRequest* request, ::mavsdk::rpc::camera::StartVideoStreamingResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void StartVideoStreaming(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::camera::StartVideoStreamingResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void StartVideoStreaming(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::StartVideoStreamingRequest* request, ::mavsdk::rpc::camera::StartVideoStreamingResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
       virtual void StartVideoStreaming(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::camera::StartVideoStreamingResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
+      //
+      // Stop current video streaming.
       virtual void StopVideoStreaming(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::StopVideoStreamingRequest* request, ::mavsdk::rpc::camera::StopVideoStreamingResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void StopVideoStreaming(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::camera::StopVideoStreamingResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void StopVideoStreaming(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::StopVideoStreamingRequest* request, ::mavsdk::rpc::camera::StopVideoStreamingResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
       virtual void StopVideoStreaming(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::camera::StopVideoStreamingResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
+      //
+      // Set camera mode.
       virtual void SetMode(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::SetModeRequest* request, ::mavsdk::rpc::camera::SetModeResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void SetMode(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::camera::SetModeResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void SetMode(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::SetModeRequest* request, ::mavsdk::rpc::camera::SetModeResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
       virtual void SetMode(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::camera::SetModeResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
+      //
+      // Subscribe to camera mode updates.
       virtual void SubscribeMode(::grpc::ClientContext* context, ::mavsdk::rpc::camera::SubscribeModeRequest* request, ::grpc::experimental::ClientReadReactor< ::mavsdk::rpc::camera::ModeResponse>* reactor) = 0;
+      //
+      // Subscribe to video stream info updates.
       virtual void SubscribeVideoStreamInfo(::grpc::ClientContext* context, ::mavsdk::rpc::camera::SubscribeVideoStreamInfoRequest* request, ::grpc::experimental::ClientReadReactor< ::mavsdk::rpc::camera::VideoStreamInfoResponse>* reactor) = 0;
+      //
+      // Subscribe to capture info updates.
       virtual void SubscribeCaptureInfo(::grpc::ClientContext* context, ::mavsdk::rpc::camera::SubscribeCaptureInfoRequest* request, ::grpc::experimental::ClientReadReactor< ::mavsdk::rpc::camera::CaptureInfoResponse>* reactor) = 0;
+      //
+      // Subscribe to camera status updates.
       virtual void SubscribeCameraStatus(::grpc::ClientContext* context, ::mavsdk::rpc::camera::SubscribeCameraStatusRequest* request, ::grpc::experimental::ClientReadReactor< ::mavsdk::rpc::camera::CameraStatusResponse>* reactor) = 0;
+      //
+      // Get the list of current camera settings.
       virtual void SubscribeCurrentSettings(::grpc::ClientContext* context, ::mavsdk::rpc::camera::SubscribeCurrentSettingsRequest* request, ::grpc::experimental::ClientReadReactor< ::mavsdk::rpc::camera::CurrentSettingsResponse>* reactor) = 0;
+      //
+      // Get the list of settings that can be changed.
       virtual void SubscribePossibleSettingOptions(::grpc::ClientContext* context, ::mavsdk::rpc::camera::SubscribePossibleSettingOptionsRequest* request, ::grpc::experimental::ClientReadReactor< ::mavsdk::rpc::camera::PossibleSettingOptionsResponse>* reactor) = 0;
+      //
+      // Set a setting to some value.
       virtual void SetSetting(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::SetSettingRequest* request, ::mavsdk::rpc::camera::SetSettingResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void SetSetting(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::camera::SetSettingResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void SetSetting(::grpc::ClientContext* context, const ::mavsdk::rpc::camera::SetSettingRequest* request, ::mavsdk::rpc::camera::SetSettingResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
@@ -481,20 +549,50 @@ class CameraService final {
    public:
     Service();
     virtual ~Service();
+    //
+    // Take one photo.
     virtual ::grpc::Status TakePhoto(::grpc::ServerContext* context, const ::mavsdk::rpc::camera::TakePhotoRequest* request, ::mavsdk::rpc::camera::TakePhotoResponse* response);
+    //
+    // Start photo timelapse with a given interval.
     virtual ::grpc::Status StartPhotoInterval(::grpc::ServerContext* context, const ::mavsdk::rpc::camera::StartPhotoIntervalRequest* request, ::mavsdk::rpc::camera::StartPhotoIntervalResponse* response);
+    //
+    // Stop a running photo timelapse.
     virtual ::grpc::Status StopPhotoInterval(::grpc::ServerContext* context, const ::mavsdk::rpc::camera::StopPhotoIntervalRequest* request, ::mavsdk::rpc::camera::StopPhotoIntervalResponse* response);
+    //
+    // Start a video recording.
     virtual ::grpc::Status StartVideo(::grpc::ServerContext* context, const ::mavsdk::rpc::camera::StartVideoRequest* request, ::mavsdk::rpc::camera::StartVideoResponse* response);
+    //
+    // Stop a running video recording.
     virtual ::grpc::Status StopVideo(::grpc::ServerContext* context, const ::mavsdk::rpc::camera::StopVideoRequest* request, ::mavsdk::rpc::camera::StopVideoResponse* response);
+    //
+    // Start video streaming.
     virtual ::grpc::Status StartVideoStreaming(::grpc::ServerContext* context, const ::mavsdk::rpc::camera::StartVideoStreamingRequest* request, ::mavsdk::rpc::camera::StartVideoStreamingResponse* response);
+    //
+    // Stop current video streaming.
     virtual ::grpc::Status StopVideoStreaming(::grpc::ServerContext* context, const ::mavsdk::rpc::camera::StopVideoStreamingRequest* request, ::mavsdk::rpc::camera::StopVideoStreamingResponse* response);
+    //
+    // Set camera mode.
     virtual ::grpc::Status SetMode(::grpc::ServerContext* context, const ::mavsdk::rpc::camera::SetModeRequest* request, ::mavsdk::rpc::camera::SetModeResponse* response);
+    //
+    // Subscribe to camera mode updates.
     virtual ::grpc::Status SubscribeMode(::grpc::ServerContext* context, const ::mavsdk::rpc::camera::SubscribeModeRequest* request, ::grpc::ServerWriter< ::mavsdk::rpc::camera::ModeResponse>* writer);
+    //
+    // Subscribe to video stream info updates.
     virtual ::grpc::Status SubscribeVideoStreamInfo(::grpc::ServerContext* context, const ::mavsdk::rpc::camera::SubscribeVideoStreamInfoRequest* request, ::grpc::ServerWriter< ::mavsdk::rpc::camera::VideoStreamInfoResponse>* writer);
+    //
+    // Subscribe to capture info updates.
     virtual ::grpc::Status SubscribeCaptureInfo(::grpc::ServerContext* context, const ::mavsdk::rpc::camera::SubscribeCaptureInfoRequest* request, ::grpc::ServerWriter< ::mavsdk::rpc::camera::CaptureInfoResponse>* writer);
+    //
+    // Subscribe to camera status updates.
     virtual ::grpc::Status SubscribeCameraStatus(::grpc::ServerContext* context, const ::mavsdk::rpc::camera::SubscribeCameraStatusRequest* request, ::grpc::ServerWriter< ::mavsdk::rpc::camera::CameraStatusResponse>* writer);
+    //
+    // Get the list of current camera settings.
     virtual ::grpc::Status SubscribeCurrentSettings(::grpc::ServerContext* context, const ::mavsdk::rpc::camera::SubscribeCurrentSettingsRequest* request, ::grpc::ServerWriter< ::mavsdk::rpc::camera::CurrentSettingsResponse>* writer);
+    //
+    // Get the list of settings that can be changed.
     virtual ::grpc::Status SubscribePossibleSettingOptions(::grpc::ServerContext* context, const ::mavsdk::rpc::camera::SubscribePossibleSettingOptionsRequest* request, ::grpc::ServerWriter< ::mavsdk::rpc::camera::PossibleSettingOptionsResponse>* writer);
+    //
+    // Set a setting to some value.
     virtual ::grpc::Status SetSetting(::grpc::ServerContext* context, const ::mavsdk::rpc::camera::SetSettingRequest* request, ::mavsdk::rpc::camera::SetSettingResponse* response);
   };
   template <class BaseClass>
