@@ -37,6 +37,7 @@ namespace mavsdk {
 namespace rpc {
 namespace action {
 
+// Enable simple actions such as arming, taking off, and landing.
 class ActionService final {
  public:
   static constexpr char const* service_full_name() {
@@ -45,6 +46,11 @@ class ActionService final {
   class StubInterface {
    public:
     virtual ~StubInterface() {}
+    //
+    // Send command to arm the drone.
+    //
+    // Arming a drone normally causes motors to spin at idle.
+    // Before arming take all safety precautions and stand clear of the drone!
     virtual ::grpc::Status Arm(::grpc::ClientContext* context, const ::mavsdk::rpc::action::ArmRequest& request, ::mavsdk::rpc::action::ArmResponse* response) = 0;
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::ArmResponse>> AsyncArm(::grpc::ClientContext* context, const ::mavsdk::rpc::action::ArmRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::ArmResponse>>(AsyncArmRaw(context, request, cq));
@@ -52,6 +58,11 @@ class ActionService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::ArmResponse>> PrepareAsyncArm(::grpc::ClientContext* context, const ::mavsdk::rpc::action::ArmRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::ArmResponse>>(PrepareAsyncArmRaw(context, request, cq));
     }
+    //
+    // Send command to disarm the drone.
+    //
+    // This will disarm a drone that considers itself landed. If flying, the drone should
+    // reject the disarm command. Disarming means that all motors will stop.
     virtual ::grpc::Status Disarm(::grpc::ClientContext* context, const ::mavsdk::rpc::action::DisarmRequest& request, ::mavsdk::rpc::action::DisarmResponse* response) = 0;
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::DisarmResponse>> AsyncDisarm(::grpc::ClientContext* context, const ::mavsdk::rpc::action::DisarmRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::DisarmResponse>>(AsyncDisarmRaw(context, request, cq));
@@ -59,6 +70,13 @@ class ActionService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::DisarmResponse>> PrepareAsyncDisarm(::grpc::ClientContext* context, const ::mavsdk::rpc::action::DisarmRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::DisarmResponse>>(PrepareAsyncDisarmRaw(context, request, cq));
     }
+    //
+    // Send command to take off and hover.
+    //
+    // This switches the drone into position control mode and commands 
+    // it to take off and hover at the takeoff altitude.
+    //
+    // Note that the vehicle must be armed before it can take off.
     virtual ::grpc::Status Takeoff(::grpc::ClientContext* context, const ::mavsdk::rpc::action::TakeoffRequest& request, ::mavsdk::rpc::action::TakeoffResponse* response) = 0;
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::TakeoffResponse>> AsyncTakeoff(::grpc::ClientContext* context, const ::mavsdk::rpc::action::TakeoffRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::TakeoffResponse>>(AsyncTakeoffRaw(context, request, cq));
@@ -66,6 +84,10 @@ class ActionService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::TakeoffResponse>> PrepareAsyncTakeoff(::grpc::ClientContext* context, const ::mavsdk::rpc::action::TakeoffRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::TakeoffResponse>>(PrepareAsyncTakeoffRaw(context, request, cq));
     }
+    //
+    // Send command to land at the current position.
+    //
+    // This switches the drone to 'Land' flight mode.
     virtual ::grpc::Status Land(::grpc::ClientContext* context, const ::mavsdk::rpc::action::LandRequest& request, ::mavsdk::rpc::action::LandResponse* response) = 0;
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::LandResponse>> AsyncLand(::grpc::ClientContext* context, const ::mavsdk::rpc::action::LandRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::LandResponse>>(AsyncLandRaw(context, request, cq));
@@ -73,6 +95,10 @@ class ActionService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::LandResponse>> PrepareAsyncLand(::grpc::ClientContext* context, const ::mavsdk::rpc::action::LandRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::LandResponse>>(PrepareAsyncLandRaw(context, request, cq));
     }
+    //
+    // Send command to reboot the drone components.
+    //
+    // This will reboot the autopilot, companion computer, camera and gimbal.
     virtual ::grpc::Status Reboot(::grpc::ClientContext* context, const ::mavsdk::rpc::action::RebootRequest& request, ::mavsdk::rpc::action::RebootResponse* response) = 0;
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::RebootResponse>> AsyncReboot(::grpc::ClientContext* context, const ::mavsdk::rpc::action::RebootRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::RebootResponse>>(AsyncRebootRaw(context, request, cq));
@@ -80,6 +106,11 @@ class ActionService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::RebootResponse>> PrepareAsyncReboot(::grpc::ClientContext* context, const ::mavsdk::rpc::action::RebootRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::RebootResponse>>(PrepareAsyncRebootRaw(context, request, cq));
     }
+    //
+    // Send command to kill the drone. 
+    //
+    // This will disarm a drone irrespective of whether it is landed or flying.
+    // Note that the drone will fall out of the sky if this command is used while flying.
     virtual ::grpc::Status Kill(::grpc::ClientContext* context, const ::mavsdk::rpc::action::KillRequest& request, ::mavsdk::rpc::action::KillResponse* response) = 0;
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::KillResponse>> AsyncKill(::grpc::ClientContext* context, const ::mavsdk::rpc::action::KillRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::KillResponse>>(AsyncKillRaw(context, request, cq));
@@ -87,6 +118,12 @@ class ActionService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::KillResponse>> PrepareAsyncKill(::grpc::ClientContext* context, const ::mavsdk::rpc::action::KillRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::KillResponse>>(PrepareAsyncKillRaw(context, request, cq));
     }
+    //
+    // Send command to return to the launch (takeoff) position and land.
+    //
+    // This switches the drone into [RTL mode](https://docs.px4.io/en/flight_modes/rtl.html) which
+    // generally means it will rise up to a certain altitude to clear any obstacles before heading
+    // back to the launch (takeoff) position and land there.
     virtual ::grpc::Status ReturnToLaunch(::grpc::ClientContext* context, const ::mavsdk::rpc::action::ReturnToLaunchRequest& request, ::mavsdk::rpc::action::ReturnToLaunchResponse* response) = 0;
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::ReturnToLaunchResponse>> AsyncReturnToLaunch(::grpc::ClientContext* context, const ::mavsdk::rpc::action::ReturnToLaunchRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::ReturnToLaunchResponse>>(AsyncReturnToLaunchRaw(context, request, cq));
@@ -94,6 +131,12 @@ class ActionService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::ReturnToLaunchResponse>> PrepareAsyncReturnToLaunch(::grpc::ClientContext* context, const ::mavsdk::rpc::action::ReturnToLaunchRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::ReturnToLaunchResponse>>(PrepareAsyncReturnToLaunchRaw(context, request, cq));
     }
+    //
+    // Send command to transition the drone to fixedwing.
+    //
+    // The associated action will only be executed for VTOL vehicles (on other vehicle types the
+    // command will fail). The command will succeed if called when the vehicle
+    // is already in fixedwing mode.
     virtual ::grpc::Status TransitionToFixedWing(::grpc::ClientContext* context, const ::mavsdk::rpc::action::TransitionToFixedWingRequest& request, ::mavsdk::rpc::action::TransitionToFixedWingResponse* response) = 0;
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::TransitionToFixedWingResponse>> AsyncTransitionToFixedWing(::grpc::ClientContext* context, const ::mavsdk::rpc::action::TransitionToFixedWingRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::TransitionToFixedWingResponse>>(AsyncTransitionToFixedWingRaw(context, request, cq));
@@ -101,6 +144,12 @@ class ActionService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::TransitionToFixedWingResponse>> PrepareAsyncTransitionToFixedWing(::grpc::ClientContext* context, const ::mavsdk::rpc::action::TransitionToFixedWingRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::TransitionToFixedWingResponse>>(PrepareAsyncTransitionToFixedWingRaw(context, request, cq));
     }
+    //
+    // Send command to transition the drone to multicopter.
+    //
+    // The associated action will only be executed for VTOL vehicles (on other vehicle types the
+    // command will fail). The command will succeed if called when the vehicle
+    // is already in multicopter mode.
     virtual ::grpc::Status TransitionToMulticopter(::grpc::ClientContext* context, const ::mavsdk::rpc::action::TransitionToMulticopterRequest& request, ::mavsdk::rpc::action::TransitionToMulticopterResponse* response) = 0;
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::TransitionToMulticopterResponse>> AsyncTransitionToMulticopter(::grpc::ClientContext* context, const ::mavsdk::rpc::action::TransitionToMulticopterRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::TransitionToMulticopterResponse>>(AsyncTransitionToMulticopterRaw(context, request, cq));
@@ -108,6 +157,8 @@ class ActionService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::TransitionToMulticopterResponse>> PrepareAsyncTransitionToMulticopter(::grpc::ClientContext* context, const ::mavsdk::rpc::action::TransitionToMulticopterRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::TransitionToMulticopterResponse>>(PrepareAsyncTransitionToMulticopterRaw(context, request, cq));
     }
+    //
+    // Get the takeoff altitude (in meters above ground).
     virtual ::grpc::Status GetTakeoffAltitude(::grpc::ClientContext* context, const ::mavsdk::rpc::action::GetTakeoffAltitudeRequest& request, ::mavsdk::rpc::action::GetTakeoffAltitudeResponse* response) = 0;
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::GetTakeoffAltitudeResponse>> AsyncGetTakeoffAltitude(::grpc::ClientContext* context, const ::mavsdk::rpc::action::GetTakeoffAltitudeRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::GetTakeoffAltitudeResponse>>(AsyncGetTakeoffAltitudeRaw(context, request, cq));
@@ -115,6 +166,8 @@ class ActionService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::GetTakeoffAltitudeResponse>> PrepareAsyncGetTakeoffAltitude(::grpc::ClientContext* context, const ::mavsdk::rpc::action::GetTakeoffAltitudeRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::GetTakeoffAltitudeResponse>>(PrepareAsyncGetTakeoffAltitudeRaw(context, request, cq));
     }
+    //
+    // Set takeoff altitude (in meters above ground).
     virtual ::grpc::Status SetTakeoffAltitude(::grpc::ClientContext* context, const ::mavsdk::rpc::action::SetTakeoffAltitudeRequest& request, ::mavsdk::rpc::action::SetTakeoffAltitudeResponse* response) = 0;
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::SetTakeoffAltitudeResponse>> AsyncSetTakeoffAltitude(::grpc::ClientContext* context, const ::mavsdk::rpc::action::SetTakeoffAltitudeRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::SetTakeoffAltitudeResponse>>(AsyncSetTakeoffAltitudeRaw(context, request, cq));
@@ -122,6 +175,8 @@ class ActionService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::SetTakeoffAltitudeResponse>> PrepareAsyncSetTakeoffAltitude(::grpc::ClientContext* context, const ::mavsdk::rpc::action::SetTakeoffAltitudeRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::SetTakeoffAltitudeResponse>>(PrepareAsyncSetTakeoffAltitudeRaw(context, request, cq));
     }
+    //
+    // Get the vehicle maximum speed (in metres/second).
     virtual ::grpc::Status GetMaximumSpeed(::grpc::ClientContext* context, const ::mavsdk::rpc::action::GetMaximumSpeedRequest& request, ::mavsdk::rpc::action::GetMaximumSpeedResponse* response) = 0;
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::GetMaximumSpeedResponse>> AsyncGetMaximumSpeed(::grpc::ClientContext* context, const ::mavsdk::rpc::action::GetMaximumSpeedRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::GetMaximumSpeedResponse>>(AsyncGetMaximumSpeedRaw(context, request, cq));
@@ -129,6 +184,8 @@ class ActionService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::GetMaximumSpeedResponse>> PrepareAsyncGetMaximumSpeed(::grpc::ClientContext* context, const ::mavsdk::rpc::action::GetMaximumSpeedRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::GetMaximumSpeedResponse>>(PrepareAsyncGetMaximumSpeedRaw(context, request, cq));
     }
+    //
+    // Set vehicle maximum speed (in metres/second).
     virtual ::grpc::Status SetMaximumSpeed(::grpc::ClientContext* context, const ::mavsdk::rpc::action::SetMaximumSpeedRequest& request, ::mavsdk::rpc::action::SetMaximumSpeedResponse* response) = 0;
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::SetMaximumSpeedResponse>> AsyncSetMaximumSpeed(::grpc::ClientContext* context, const ::mavsdk::rpc::action::SetMaximumSpeedRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::SetMaximumSpeedResponse>>(AsyncSetMaximumSpeedRaw(context, request, cq));
@@ -136,6 +193,8 @@ class ActionService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::SetMaximumSpeedResponse>> PrepareAsyncSetMaximumSpeed(::grpc::ClientContext* context, const ::mavsdk::rpc::action::SetMaximumSpeedRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::SetMaximumSpeedResponse>>(PrepareAsyncSetMaximumSpeedRaw(context, request, cq));
     }
+    //
+    // Get the return to launch minimum return altitude (in meters).
     virtual ::grpc::Status GetReturnToLaunchAltitude(::grpc::ClientContext* context, const ::mavsdk::rpc::action::GetReturnToLaunchAltitudeRequest& request, ::mavsdk::rpc::action::GetReturnToLaunchAltitudeResponse* response) = 0;
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::GetReturnToLaunchAltitudeResponse>> AsyncGetReturnToLaunchAltitude(::grpc::ClientContext* context, const ::mavsdk::rpc::action::GetReturnToLaunchAltitudeRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::GetReturnToLaunchAltitudeResponse>>(AsyncGetReturnToLaunchAltitudeRaw(context, request, cq));
@@ -143,6 +202,8 @@ class ActionService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::GetReturnToLaunchAltitudeResponse>> PrepareAsyncGetReturnToLaunchAltitude(::grpc::ClientContext* context, const ::mavsdk::rpc::action::GetReturnToLaunchAltitudeRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::GetReturnToLaunchAltitudeResponse>>(PrepareAsyncGetReturnToLaunchAltitudeRaw(context, request, cq));
     }
+    //
+    // Set the return to launch minimum return altitude (in meters).
     virtual ::grpc::Status SetReturnToLaunchAltitude(::grpc::ClientContext* context, const ::mavsdk::rpc::action::SetReturnToLaunchAltitudeRequest& request, ::mavsdk::rpc::action::SetReturnToLaunchAltitudeResponse* response) = 0;
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::SetReturnToLaunchAltitudeResponse>> AsyncSetReturnToLaunchAltitude(::grpc::ClientContext* context, const ::mavsdk::rpc::action::SetReturnToLaunchAltitudeRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::mavsdk::rpc::action::SetReturnToLaunchAltitudeResponse>>(AsyncSetReturnToLaunchAltitudeRaw(context, request, cq));
@@ -153,62 +214,122 @@ class ActionService final {
     class experimental_async_interface {
      public:
       virtual ~experimental_async_interface() {}
+      //
+      // Send command to arm the drone.
+      //
+      // Arming a drone normally causes motors to spin at idle.
+      // Before arming take all safety precautions and stand clear of the drone!
       virtual void Arm(::grpc::ClientContext* context, const ::mavsdk::rpc::action::ArmRequest* request, ::mavsdk::rpc::action::ArmResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void Arm(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::action::ArmResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void Arm(::grpc::ClientContext* context, const ::mavsdk::rpc::action::ArmRequest* request, ::mavsdk::rpc::action::ArmResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
       virtual void Arm(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::action::ArmResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
+      //
+      // Send command to disarm the drone.
+      //
+      // This will disarm a drone that considers itself landed. If flying, the drone should
+      // reject the disarm command. Disarming means that all motors will stop.
       virtual void Disarm(::grpc::ClientContext* context, const ::mavsdk::rpc::action::DisarmRequest* request, ::mavsdk::rpc::action::DisarmResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void Disarm(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::action::DisarmResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void Disarm(::grpc::ClientContext* context, const ::mavsdk::rpc::action::DisarmRequest* request, ::mavsdk::rpc::action::DisarmResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
       virtual void Disarm(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::action::DisarmResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
+      //
+      // Send command to take off and hover.
+      //
+      // This switches the drone into position control mode and commands 
+      // it to take off and hover at the takeoff altitude.
+      //
+      // Note that the vehicle must be armed before it can take off.
       virtual void Takeoff(::grpc::ClientContext* context, const ::mavsdk::rpc::action::TakeoffRequest* request, ::mavsdk::rpc::action::TakeoffResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void Takeoff(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::action::TakeoffResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void Takeoff(::grpc::ClientContext* context, const ::mavsdk::rpc::action::TakeoffRequest* request, ::mavsdk::rpc::action::TakeoffResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
       virtual void Takeoff(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::action::TakeoffResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
+      //
+      // Send command to land at the current position.
+      //
+      // This switches the drone to 'Land' flight mode.
       virtual void Land(::grpc::ClientContext* context, const ::mavsdk::rpc::action::LandRequest* request, ::mavsdk::rpc::action::LandResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void Land(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::action::LandResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void Land(::grpc::ClientContext* context, const ::mavsdk::rpc::action::LandRequest* request, ::mavsdk::rpc::action::LandResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
       virtual void Land(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::action::LandResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
+      //
+      // Send command to reboot the drone components.
+      //
+      // This will reboot the autopilot, companion computer, camera and gimbal.
       virtual void Reboot(::grpc::ClientContext* context, const ::mavsdk::rpc::action::RebootRequest* request, ::mavsdk::rpc::action::RebootResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void Reboot(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::action::RebootResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void Reboot(::grpc::ClientContext* context, const ::mavsdk::rpc::action::RebootRequest* request, ::mavsdk::rpc::action::RebootResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
       virtual void Reboot(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::action::RebootResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
+      //
+      // Send command to kill the drone. 
+      //
+      // This will disarm a drone irrespective of whether it is landed or flying.
+      // Note that the drone will fall out of the sky if this command is used while flying.
       virtual void Kill(::grpc::ClientContext* context, const ::mavsdk::rpc::action::KillRequest* request, ::mavsdk::rpc::action::KillResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void Kill(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::action::KillResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void Kill(::grpc::ClientContext* context, const ::mavsdk::rpc::action::KillRequest* request, ::mavsdk::rpc::action::KillResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
       virtual void Kill(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::action::KillResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
+      //
+      // Send command to return to the launch (takeoff) position and land.
+      //
+      // This switches the drone into [RTL mode](https://docs.px4.io/en/flight_modes/rtl.html) which
+      // generally means it will rise up to a certain altitude to clear any obstacles before heading
+      // back to the launch (takeoff) position and land there.
       virtual void ReturnToLaunch(::grpc::ClientContext* context, const ::mavsdk::rpc::action::ReturnToLaunchRequest* request, ::mavsdk::rpc::action::ReturnToLaunchResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void ReturnToLaunch(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::action::ReturnToLaunchResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void ReturnToLaunch(::grpc::ClientContext* context, const ::mavsdk::rpc::action::ReturnToLaunchRequest* request, ::mavsdk::rpc::action::ReturnToLaunchResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
       virtual void ReturnToLaunch(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::action::ReturnToLaunchResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
+      //
+      // Send command to transition the drone to fixedwing.
+      //
+      // The associated action will only be executed for VTOL vehicles (on other vehicle types the
+      // command will fail). The command will succeed if called when the vehicle
+      // is already in fixedwing mode.
       virtual void TransitionToFixedWing(::grpc::ClientContext* context, const ::mavsdk::rpc::action::TransitionToFixedWingRequest* request, ::mavsdk::rpc::action::TransitionToFixedWingResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void TransitionToFixedWing(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::action::TransitionToFixedWingResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void TransitionToFixedWing(::grpc::ClientContext* context, const ::mavsdk::rpc::action::TransitionToFixedWingRequest* request, ::mavsdk::rpc::action::TransitionToFixedWingResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
       virtual void TransitionToFixedWing(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::action::TransitionToFixedWingResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
+      //
+      // Send command to transition the drone to multicopter.
+      //
+      // The associated action will only be executed for VTOL vehicles (on other vehicle types the
+      // command will fail). The command will succeed if called when the vehicle
+      // is already in multicopter mode.
       virtual void TransitionToMulticopter(::grpc::ClientContext* context, const ::mavsdk::rpc::action::TransitionToMulticopterRequest* request, ::mavsdk::rpc::action::TransitionToMulticopterResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void TransitionToMulticopter(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::action::TransitionToMulticopterResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void TransitionToMulticopter(::grpc::ClientContext* context, const ::mavsdk::rpc::action::TransitionToMulticopterRequest* request, ::mavsdk::rpc::action::TransitionToMulticopterResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
       virtual void TransitionToMulticopter(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::action::TransitionToMulticopterResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
+      //
+      // Get the takeoff altitude (in meters above ground).
       virtual void GetTakeoffAltitude(::grpc::ClientContext* context, const ::mavsdk::rpc::action::GetTakeoffAltitudeRequest* request, ::mavsdk::rpc::action::GetTakeoffAltitudeResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void GetTakeoffAltitude(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::action::GetTakeoffAltitudeResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void GetTakeoffAltitude(::grpc::ClientContext* context, const ::mavsdk::rpc::action::GetTakeoffAltitudeRequest* request, ::mavsdk::rpc::action::GetTakeoffAltitudeResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
       virtual void GetTakeoffAltitude(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::action::GetTakeoffAltitudeResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
+      //
+      // Set takeoff altitude (in meters above ground).
       virtual void SetTakeoffAltitude(::grpc::ClientContext* context, const ::mavsdk::rpc::action::SetTakeoffAltitudeRequest* request, ::mavsdk::rpc::action::SetTakeoffAltitudeResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void SetTakeoffAltitude(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::action::SetTakeoffAltitudeResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void SetTakeoffAltitude(::grpc::ClientContext* context, const ::mavsdk::rpc::action::SetTakeoffAltitudeRequest* request, ::mavsdk::rpc::action::SetTakeoffAltitudeResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
       virtual void SetTakeoffAltitude(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::action::SetTakeoffAltitudeResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
+      //
+      // Get the vehicle maximum speed (in metres/second).
       virtual void GetMaximumSpeed(::grpc::ClientContext* context, const ::mavsdk::rpc::action::GetMaximumSpeedRequest* request, ::mavsdk::rpc::action::GetMaximumSpeedResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void GetMaximumSpeed(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::action::GetMaximumSpeedResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void GetMaximumSpeed(::grpc::ClientContext* context, const ::mavsdk::rpc::action::GetMaximumSpeedRequest* request, ::mavsdk::rpc::action::GetMaximumSpeedResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
       virtual void GetMaximumSpeed(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::action::GetMaximumSpeedResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
+      //
+      // Set vehicle maximum speed (in metres/second).
       virtual void SetMaximumSpeed(::grpc::ClientContext* context, const ::mavsdk::rpc::action::SetMaximumSpeedRequest* request, ::mavsdk::rpc::action::SetMaximumSpeedResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void SetMaximumSpeed(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::action::SetMaximumSpeedResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void SetMaximumSpeed(::grpc::ClientContext* context, const ::mavsdk::rpc::action::SetMaximumSpeedRequest* request, ::mavsdk::rpc::action::SetMaximumSpeedResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
       virtual void SetMaximumSpeed(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::action::SetMaximumSpeedResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
+      //
+      // Get the return to launch minimum return altitude (in meters).
       virtual void GetReturnToLaunchAltitude(::grpc::ClientContext* context, const ::mavsdk::rpc::action::GetReturnToLaunchAltitudeRequest* request, ::mavsdk::rpc::action::GetReturnToLaunchAltitudeResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void GetReturnToLaunchAltitude(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::action::GetReturnToLaunchAltitudeResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void GetReturnToLaunchAltitude(::grpc::ClientContext* context, const ::mavsdk::rpc::action::GetReturnToLaunchAltitudeRequest* request, ::mavsdk::rpc::action::GetReturnToLaunchAltitudeResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
       virtual void GetReturnToLaunchAltitude(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::action::GetReturnToLaunchAltitudeResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
+      //
+      // Set the return to launch minimum return altitude (in meters).
       virtual void SetReturnToLaunchAltitude(::grpc::ClientContext* context, const ::mavsdk::rpc::action::SetReturnToLaunchAltitudeRequest* request, ::mavsdk::rpc::action::SetReturnToLaunchAltitudeResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void SetReturnToLaunchAltitude(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::mavsdk::rpc::action::SetReturnToLaunchAltitudeResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void SetReturnToLaunchAltitude(::grpc::ClientContext* context, const ::mavsdk::rpc::action::SetReturnToLaunchAltitudeRequest* request, ::mavsdk::rpc::action::SetReturnToLaunchAltitudeResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
@@ -481,20 +602,80 @@ class ActionService final {
    public:
     Service();
     virtual ~Service();
+    //
+    // Send command to arm the drone.
+    //
+    // Arming a drone normally causes motors to spin at idle.
+    // Before arming take all safety precautions and stand clear of the drone!
     virtual ::grpc::Status Arm(::grpc::ServerContext* context, const ::mavsdk::rpc::action::ArmRequest* request, ::mavsdk::rpc::action::ArmResponse* response);
+    //
+    // Send command to disarm the drone.
+    //
+    // This will disarm a drone that considers itself landed. If flying, the drone should
+    // reject the disarm command. Disarming means that all motors will stop.
     virtual ::grpc::Status Disarm(::grpc::ServerContext* context, const ::mavsdk::rpc::action::DisarmRequest* request, ::mavsdk::rpc::action::DisarmResponse* response);
+    //
+    // Send command to take off and hover.
+    //
+    // This switches the drone into position control mode and commands 
+    // it to take off and hover at the takeoff altitude.
+    //
+    // Note that the vehicle must be armed before it can take off.
     virtual ::grpc::Status Takeoff(::grpc::ServerContext* context, const ::mavsdk::rpc::action::TakeoffRequest* request, ::mavsdk::rpc::action::TakeoffResponse* response);
+    //
+    // Send command to land at the current position.
+    //
+    // This switches the drone to 'Land' flight mode.
     virtual ::grpc::Status Land(::grpc::ServerContext* context, const ::mavsdk::rpc::action::LandRequest* request, ::mavsdk::rpc::action::LandResponse* response);
+    //
+    // Send command to reboot the drone components.
+    //
+    // This will reboot the autopilot, companion computer, camera and gimbal.
     virtual ::grpc::Status Reboot(::grpc::ServerContext* context, const ::mavsdk::rpc::action::RebootRequest* request, ::mavsdk::rpc::action::RebootResponse* response);
+    //
+    // Send command to kill the drone. 
+    //
+    // This will disarm a drone irrespective of whether it is landed or flying.
+    // Note that the drone will fall out of the sky if this command is used while flying.
     virtual ::grpc::Status Kill(::grpc::ServerContext* context, const ::mavsdk::rpc::action::KillRequest* request, ::mavsdk::rpc::action::KillResponse* response);
+    //
+    // Send command to return to the launch (takeoff) position and land.
+    //
+    // This switches the drone into [RTL mode](https://docs.px4.io/en/flight_modes/rtl.html) which
+    // generally means it will rise up to a certain altitude to clear any obstacles before heading
+    // back to the launch (takeoff) position and land there.
     virtual ::grpc::Status ReturnToLaunch(::grpc::ServerContext* context, const ::mavsdk::rpc::action::ReturnToLaunchRequest* request, ::mavsdk::rpc::action::ReturnToLaunchResponse* response);
+    //
+    // Send command to transition the drone to fixedwing.
+    //
+    // The associated action will only be executed for VTOL vehicles (on other vehicle types the
+    // command will fail). The command will succeed if called when the vehicle
+    // is already in fixedwing mode.
     virtual ::grpc::Status TransitionToFixedWing(::grpc::ServerContext* context, const ::mavsdk::rpc::action::TransitionToFixedWingRequest* request, ::mavsdk::rpc::action::TransitionToFixedWingResponse* response);
+    //
+    // Send command to transition the drone to multicopter.
+    //
+    // The associated action will only be executed for VTOL vehicles (on other vehicle types the
+    // command will fail). The command will succeed if called when the vehicle
+    // is already in multicopter mode.
     virtual ::grpc::Status TransitionToMulticopter(::grpc::ServerContext* context, const ::mavsdk::rpc::action::TransitionToMulticopterRequest* request, ::mavsdk::rpc::action::TransitionToMulticopterResponse* response);
+    //
+    // Get the takeoff altitude (in meters above ground).
     virtual ::grpc::Status GetTakeoffAltitude(::grpc::ServerContext* context, const ::mavsdk::rpc::action::GetTakeoffAltitudeRequest* request, ::mavsdk::rpc::action::GetTakeoffAltitudeResponse* response);
+    //
+    // Set takeoff altitude (in meters above ground).
     virtual ::grpc::Status SetTakeoffAltitude(::grpc::ServerContext* context, const ::mavsdk::rpc::action::SetTakeoffAltitudeRequest* request, ::mavsdk::rpc::action::SetTakeoffAltitudeResponse* response);
+    //
+    // Get the vehicle maximum speed (in metres/second).
     virtual ::grpc::Status GetMaximumSpeed(::grpc::ServerContext* context, const ::mavsdk::rpc::action::GetMaximumSpeedRequest* request, ::mavsdk::rpc::action::GetMaximumSpeedResponse* response);
+    //
+    // Set vehicle maximum speed (in metres/second).
     virtual ::grpc::Status SetMaximumSpeed(::grpc::ServerContext* context, const ::mavsdk::rpc::action::SetMaximumSpeedRequest* request, ::mavsdk::rpc::action::SetMaximumSpeedResponse* response);
+    //
+    // Get the return to launch minimum return altitude (in meters).
     virtual ::grpc::Status GetReturnToLaunchAltitude(::grpc::ServerContext* context, const ::mavsdk::rpc::action::GetReturnToLaunchAltitudeRequest* request, ::mavsdk::rpc::action::GetReturnToLaunchAltitudeResponse* response);
+    //
+    // Set the return to launch minimum return altitude (in meters).
     virtual ::grpc::Status SetReturnToLaunchAltitude(::grpc::ServerContext* context, const ::mavsdk::rpc::action::SetReturnToLaunchAltitudeRequest* request, ::mavsdk::rpc::action::SetReturnToLaunchAltitudeResponse* response);
   };
   template <class BaseClass>

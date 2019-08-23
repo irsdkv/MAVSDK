@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "global_include.h"
 #include "logging_impl.h"
 #include "mavsdk_impl.h"
@@ -83,25 +84,148 @@ void LoggingImpl::stop_logging_async(const Logging::result_callback_t& callback)
         command, std::bind(&LoggingImpl::command_result_callback, std::placeholders::_1, callback));
 }
 
+void LoggingImpl::mavlink_message_logging_data_async(Logging::mavlink_message_logging_data_callback_t& callback)
+{
+	_mavlink_message_logging_data_subscription = callback;
+}
+
+void LoggingImpl::message_flag_bits_async(Logging::message_flag_bits_callback_t& callback)
+{
+    _message_flag_bits_subscription = callback;
+}
+void LoggingImpl::message_format_async(Logging::message_format_callback_t& callback)
+{
+    _message_format_subscription = callback;
+}
+void LoggingImpl::message_info_async(Logging::message_info_callback_t& callback)
+{
+    _message_info_subscription = callback;
+}
+void LoggingImpl::message_info_multiple_async(Logging::message_info_multiple_callback_t& callback)
+{
+    _message_info_multiple_subscription = callback;
+}
+void LoggingImpl::message_data_async(Logging::message_data_callback_t& callback)
+{
+    _message_data_subscription = callback;
+}
+void LoggingImpl::message_dropout_async(Logging::message_dropout_callback_t& callback)
+{
+    _message_dropout_subscription = callback;
+}
+void LoggingImpl::message_parameter_async(Logging::message_parameter_callback_t& callback)
+{
+    _message_parameter_subscription = callback;
+}
+void LoggingImpl::message_logging_async(Logging::message_logging_callback_t& callback)
+{
+    _message_logging_subscription = callback;
+}
+void LoggingImpl::message_add_logged_async(Logging::message_add_logged_callback_t& callback)
+{
+    _message_add_logged_subscription = callback;
+}
+void LoggingImpl::message_remove_logged_async(Logging::message_remove_logged_callback_t& callback)
+{
+	_message_remove_logged_subscription = callback;
+}
+
+Logging::MavlinkMessageLoggingData LoggingImpl::get_mavlink_message_logging_data() const
+{
+	std::lock_guard<std::mutex> lock(_mavlink_message_logging_data_mutex);
+	return _mavlink_message_logging_data;
+}
+
+void LoggingImpl::set_mavlink_message_logging_data(Logging::MavlinkMessageLoggingData mavlink_message_logging_data)
+{
+	std::lock_guard<std::mutex> lock(_mavlink_message_logging_data_mutex);
+	_mavlink_message_logging_data = mavlink_message_logging_data;
+}
+
+void LoggingImpl::process_mavlink_message_logging_data(const Logging::MavlinkMessageLoggingData &message_logging_data)
+{
+	set_mavlink_message_logging_data(message_logging_data);
+
+	if (_mavlink_message_logging_data_subscription) {
+		auto callback = _mavlink_message_logging_data_subscription;
+		auto arg = get_mavlink_message_logging_data();
+		_parent->call_user_callback([callback, arg]() { callback(arg); });
+	}
+}
+
 void LoggingImpl::process_logging_data(const mavlink_message_t& message)
 {
-    mavlink_logging_data_t logging_data;
-    mavlink_msg_logging_data_decode(&message, &logging_data);
+	size_t length;
+	Logging::MavlinkMessageLoggingData message_logging_data{};
+
+	message_logging_data.first_message_offset = mavlink_msg_logging_data_get_first_message_offset(&message);
+
+	length = static_cast<size_t>(mavlink_msg_logging_data_get_length(&message));
+	message_logging_data.data.reserve(MAVLINK_MSG_LOGGING_DATA_FIELD_DATA_LEN);
+	mavlink_msg_logging_data_get_data(&message, message_logging_data.data.data());
+	message_logging_data.data.erase(message_logging_data.data.begin() + length, message_logging_data.data.end());
+
+
+	process_mavlink_message_logging_data(message_logging_data);
 }
+
+
+	Logging::Result LoggingImpl::set_rate_logging(double rate_hz)
+	{
+		return logging_result_from_command_result(
+				_parent->set_msg_rate(MAVLINK_MSG_ID_LOGGING_DATA, rate_hz));
+	}
+
+
+
+	Logging::Result LoggingImpl::set_rate_logging_acked(double rate_hz)
+	{
+		return logging_result_from_command_result(
+				_parent->set_msg_rate(MAVLINK_MSG_ID_LOGGING_DATA_ACKED, rate_hz));
+
+	}
+
+	void LoggingImpl::set_rate_logging_async(double rate_hz, Logging::result_callback_t callback)
+	{
+		_parent->set_msg_rate_async(
+				MAVLINK_MSG_ID_LOGGING_DATA,
+				rate_hz,
+				std::bind(&LoggingImpl::command_result_callback, std::placeholders::_1, callback));
+	}
+
+	void LoggingImpl::set_rate_logging_acked_async(double rate_hz, Logging::result_callback_t callback)
+	{
+		_parent->set_msg_rate_async(
+				MAVLINK_MSG_ID_LOGGING_DATA_ACKED,
+				rate_hz,
+				std::bind(&LoggingImpl::command_result_callback, std::placeholders::_1, callback));
+	}
 
 void LoggingImpl::process_logging_data_acked(const mavlink_message_t& message)
 {
-    mavlink_logging_data_acked_t logging_data_acked;
-    mavlink_msg_logging_data_acked_decode(&message, &logging_data_acked);
+	uint16_t sequence;
+	size_t length;
+	Logging::MavlinkMessageLoggingData message_logging_data{};
+
+    sequence = mavlink_msg_logging_data_acked_get_sequence(&message);
+
+	message_logging_data.first_message_offset = mavlink_msg_logging_data_acked_get_first_message_offset(&message);
+
+	length = static_cast<size_t>(mavlink_msg_logging_data_acked_get_length(&message));
+	message_logging_data.data.reserve(MAVLINK_MSG_LOGGING_DATA_ACKED_FIELD_DATA_LEN);
+	mavlink_msg_logging_data_acked_get_data(&message, message_logging_data.data.data());
+	message_logging_data.data.erase(message_logging_data.data.begin() + length, message_logging_data.data.end());
+
+	process_mavlink_message_logging_data(message_logging_data);
 
     mavlink_message_t answer;
     mavlink_msg_logging_ack_pack(
-        GCSClient::system_id,
-        GCSClient::component_id,
+        _parent->get_own_system_id(),
+        _parent->get_own_component_id(),
         &answer,
         _parent->get_system_id(),
         _parent->get_autopilot_id(),
-        logging_data_acked.sequence);
+        sequence);
 
     _parent->send_message(answer);
 }

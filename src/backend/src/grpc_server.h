@@ -22,6 +22,8 @@
 #include "param/param_service_impl.h"
 #include "plugins/offboard/offboard.h"
 #include "offboard/offboard_service_impl.h"
+#include "plugins/logging/logging.h"
+#include "logging/logging_service_impl.h"
 
 namespace mavsdk {
 namespace backend {
@@ -48,7 +50,9 @@ public:
         _info(_dc.system()),
         _info_service(_info),
         _param(_dc.system()),
-        _param_service(_param)
+        _param_service(_param),
+        _logging(_dc.system()),
+        _logging_service(_logging)
     {}
 
     void run();
@@ -78,6 +82,8 @@ private:
     InfoServiceImpl<> _info_service;
     Param _param;
     ParamServiceImpl<> _param_service;
+    Logging _logging;
+    LoggingServiceImpl<> _logging_service;
 
     std::unique_ptr<grpc::Server> _server;
 };

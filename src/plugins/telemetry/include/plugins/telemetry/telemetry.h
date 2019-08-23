@@ -1017,7 +1017,7 @@ public:
     typedef std::function<void(uint64_t time_us)> unix_epoch_time_callback_t;
 
     /**
-     * @brief Callback type for actuator control target updates (asynchronous).
+     * @brief Callback type for actuator control target updates.
      *
      * @param actuator_control_target Actuator control target.
      */
@@ -1032,9 +1032,9 @@ public:
     void actuator_control_target_async(actuator_control_target_callback_t callback);
 
     /**
-     * @brief Callback type for actuator output status target updates (asynchronous).
+     * @brief Callback type for actuator output status target updates.
      *
-     * @param callback Function to call with updates.
+     * @param actuator_output_status Actuator output status.
      */
     typedef std::function<void(ActuatorOutputStatus actuator_output_status)>
         actuator_output_status_callback_t;

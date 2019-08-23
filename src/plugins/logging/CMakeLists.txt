@@ -11,6 +11,11 @@ set_target_properties(mavsdk_logging
     PROPERTIES COMPILE_FLAGS ${warnings}
 )
 
+target_include_directories(mavsdk_logging PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include/mavsdk>
+        )
+
 install(TARGETS mavsdk_logging
     EXPORT mavsdk-targets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -19,5 +24,5 @@ install(TARGETS mavsdk_logging
 
 install(FILES
     include/plugins/logging/logging.h
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/logging
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/mavsdk/plugins/logging
 )
