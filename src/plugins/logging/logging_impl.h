@@ -58,10 +58,7 @@ private:
         ProcessMessageResult curr_state,
         const std::vector<uint8_t>& message,
         std::vector<uint8_t>::const_iterator& next_first,
-        const std::vector<uint8_t>::const_iterator& expected_first);
-
-    std::vector<uint8_t>::const_iterator process_message_raw(
-        std::vector<uint8_t>& message_raw, const std::vector<uint8_t>::const_iterator first);
+        std::vector<uint8_t>::const_iterator expected_first);
 
     Logging::message_flag_bits_callback_t _message_flag_bits_subscription{nullptr};
     Logging::message_format_callback_t _message_format_subscription{nullptr};
@@ -77,8 +74,11 @@ private:
     mutable std::mutex _current_header_mutex{};
     Logging::MessageHeader _current_header{};
 
-    ProcessMessageResult _current_process_message_state{ProcessMessageResult::COMPLETE};
-    std::vector<uint8_t> _current_message_raw{};
+    ProcessMessageResult _current_state{ProcessMessageResult::COMPLETE};
+    std::vector<uint8_t> _current_logging_data{};
+	std::vector<uint8_t>::const_iterator _current_msg_begin{nullptr};
+	bool _header_received{false};
+	int _curr_offs{0};
 };
 
 } // namespace mavsdk

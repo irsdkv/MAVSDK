@@ -98,14 +98,14 @@ void LoggingImpl::read_message(
                 std::copy_n(iter_begin + 8, 8, &message_flag_bits.incompat_flags[0]);
                 for (int i = 0; i < 3; i++) {
                     message_flag_bits.appended_offsets[i] =
-                        uint64_t(iter_begin[16 + 8 * i + 8]) << 56 |
-                        uint64_t(iter_begin[16 + 8 * i + 7]) << 48 |
-                        uint64_t(iter_begin[16 + 8 * i + 6]) << 40 |
-                        uint64_t(iter_begin[16 + 8 * i + 5]) << 32 |
-                        uint64_t(iter_begin[16 + 8 * i + 4]) << 24 |
-                        uint64_t(iter_begin[16 + 8 * i + 3]) << 16 |
-                        uint64_t(iter_begin[16 + 8 * i + 2]) << 8 |
-                        uint64_t(iter_begin[16 + 8 * i + 1]) << 0;
+                        uint64_t(iter_begin[16 + 8 * i + 7]) << 56 |
+                        uint64_t(iter_begin[16 + 8 * i + 6]) << 48 |
+                        uint64_t(iter_begin[16 + 8 * i + 5]) << 40 |
+                        uint64_t(iter_begin[16 + 8 * i + 4]) << 32 |
+                        uint64_t(iter_begin[16 + 8 * i + 3]) << 24 |
+                        uint64_t(iter_begin[16 + 8 * i + 2]) << 16 |
+                        uint64_t(iter_begin[16 + 8 * i + 1]) << 8 |
+                        uint64_t(iter_begin[16 + 8 * i + 0]) << 0;
                 }
 
                 auto callback = _message_flag_bits_subscription;
@@ -124,7 +124,6 @@ void LoggingImpl::read_message(
                 auto arg = message_format;
                 _parent->call_user_callback([callback, arg]() { callback(arg); });
             }
-
             break;
         }
         case Logging::MessageType::DATA: {
@@ -243,7 +242,7 @@ LoggingImpl::ProcessMessageResult LoggingImpl::process_message(
     ProcessMessageResult curr_state,
     const std::vector<uint8_t>& message,
     std::vector<uint8_t>::const_iterator& next_first,
-    const std::vector<uint8_t>::const_iterator& expected_first)
+    std::vector<uint8_t>::const_iterator expected_first)
 {
     switch (curr_state) {
         case ProcessMessageResult::COMPLETE: {
@@ -253,23 +252,22 @@ LoggingImpl::ProcessMessageResult LoggingImpl::process_message(
         }
         case ProcessMessageResult::IN_PROGRESS: {
             if (message.size() < static_cast<size_t>(_current_header.msg_size + 3)) {
-                next_first = message.end();
-                return (
-                    next_first == expected_first ? ProcessMessageResult::IN_PROGRESS :
-                                                   ProcessMessageResult::ERROR);
+	            next_first = expected_first;
+
+                if (expected_first == message.end()) {
+                	return ProcessMessageResult::IN_PROGRESS;
+                } else {
+	                return ProcessMessageResult::ERROR;
+                }
+            }else {
+
+	            auto message_data_begin = message.begin() + 3;
+	            next_first = message_data_begin + _current_header.msg_size;
+
+	            //read_message(_current_header, message_data_begin, next_first);
+
+	            return ProcessMessageResult::COMPLETE;
             }
-
-            auto iter_begin = message.begin() + 3;
-            next_first = iter_begin + _current_header.msg_size;
-
-            if (next_first != expected_first) {
-                next_first = expected_first;
-                return ProcessMessageResult::ERROR;
-            }
-
-            read_message(_current_header, iter_begin, next_first);
-
-            return ProcessMessageResult::COMPLETE;
         }
         case ProcessMessageResult::ERROR:
         default: {
@@ -278,53 +276,138 @@ LoggingImpl::ProcessMessageResult LoggingImpl::process_message(
     }
 }
 
-std::vector<uint8_t>::const_iterator LoggingImpl::process_message_raw(
-    std::vector<uint8_t>& message_raw, const std::vector<uint8_t>::const_iterator expected_first)
-{
-    switch (_current_process_message_state) {
-        case ProcessMessageResult::COMPLETE:
-        case ProcessMessageResult::IN_PROGRESS: {
-            std::vector<uint8_t>::const_iterator next_first;
-
-            _current_process_message_state = process_message(
-                _current_process_message_state, message_raw, next_first, expected_first);
-
-            if (_current_process_message_state == ProcessMessageResult::COMPLETE) {
-                message_raw.erase(message_raw.begin(), next_first);
-                next_first = message_raw.begin();
-            }
-
-            return next_first;
-        }
-        case ProcessMessageResult::ERROR:
-        default: {
-            if (expected_first != message_raw.end()) {
-                _current_process_message_state = ProcessMessageResult::COMPLETE;
-            }
-            message_raw.erase(message_raw.begin(), expected_first);
-            return message_raw.begin();
-        }
-    }
-}
-
 void LoggingImpl::process_message_data_chunk(
     const std::vector<uint8_t>& data_chunk, uint8_t first_message_offset)
 {
-    size_t prev_size = _current_message_raw.size();
 
-    _current_message_raw.assign(data_chunk.begin(), data_chunk.end());
+	if (_message_logging_subscription) {
+		Logging::MessageLogging message_logging{};
 
-    std::vector<uint8_t>::const_iterator next_first;
+		message_logging.log_level = Logging::MessageLogging::LogLevel::DEBUG;
+		message_logging.timestamp = first_message_offset;
+
+		std::ostringstream os;
+		os << "NEW MESSAGE" << '\0';
+		std::string s = os.str();
+		message_logging.data.assign(s.begin(), s.end());
+
+		auto callback = _message_logging_subscription;
+		auto arg = message_logging;
+		_parent->call_user_callback([callback, arg]() { callback(arg); });
+	}
+
+	int offs;
 
     if (first_message_offset == 255) {
-        next_first = _current_message_raw.end();
+	    offs = 0;
     } else {
-        next_first = _current_message_raw.begin() + prev_size + first_message_offset;
+	    offs = data_chunk.size() - first_message_offset;
     }
 
+	if (!_header_received) {
+		_current_logging_data.assign(data_chunk.begin() + 16, data_chunk.end());
+		offs-= 16;
+		_header_received = true;
+	} else {
+		_current_logging_data.assign(data_chunk.begin(), data_chunk.end());
+	}
+
     do {
-        next_first = process_message_raw(_current_message_raw, next_first);
-    } while (next_first < _current_message_raw.end());
+	    switch (_current_state) {
+		    case ProcessMessageResult::COMPLETE: {
+
+			    if (_message_logging_subscription) {
+				    Logging::MessageLogging message_logging{};
+
+				    message_logging.log_level = Logging::MessageLogging::LogLevel::DEBUG;
+				    message_logging.timestamp = first_message_offset;
+
+				    std::ostringstream os;
+				    os << "COMPLETE: " << "all.size = " << _current_logging_data.size() << ", fmo = " << unsigned(first_message_offset) << '\0';
+				    std::string s = os.str();
+				    message_logging.data.assign(s.begin(), s.end());
+
+				    auto callback = _message_logging_subscription;
+				    auto arg = message_logging;
+				    _parent->call_user_callback([callback, arg]() { callback(arg); });
+			    }
+			    if (_current_logging_data.size() < 3){
+				    _curr_offs = 0;
+			    	break;
+			    }
+			    _current_header.msg_size = (_current_logging_data[1] << 8 | _current_logging_data[0]);
+			    _current_header.msg_type = static_cast<Logging::MessageType>(_current_logging_data[2]);
+			    _curr_offs = _current_logging_data.size() - 3;
+			    _current_state = ProcessMessageResult::IN_PROGRESS;
+			    offs = 0;
+			    break;
+		    }
+		    case ProcessMessageResult::IN_PROGRESS: {
+
+			    if (_message_logging_subscription) {
+				    Logging::MessageLogging message_logging{};
+
+				    message_logging.log_level = Logging::MessageLogging::LogLevel::DEBUG;
+
+				    message_logging.timestamp = first_message_offset;
+				    std::ostringstream os;
+				    os << "IN_PROGRESS: " << "curr_msg_size = " << unsigned(_current_header.msg_size) << ", all.size = " << _current_logging_data.size() << ", fmo = " << unsigned(first_message_offset) << '\0';
+				    std::string s = os.str();
+				    message_logging.data.assign(s.begin(), s.end());
+
+				    auto callback = _message_logging_subscription;
+				    auto arg = message_logging;
+				    _parent->call_user_callback([callback, arg]() { callback(arg); });
+			    }
+
+			    if (_current_logging_data.size() < static_cast<size_t>(_current_header.msg_size + 3)) {
+				    if (offs != 0) {
+					    _current_state = ProcessMessageResult::ERROR;
+					    break;
+				    }
+				    _curr_offs = 0;
+				    break;
+			    }
+
+			    auto message_data_begin = _current_logging_data.begin() + 3;
+			    auto message_data_end = message_data_begin + _current_header.msg_size;
+
+			    read_message(_current_header, message_data_begin, message_data_end);
+
+			    _current_logging_data.erase(_current_logging_data.begin(), message_data_end);
+			    _curr_offs = _current_logging_data.size();
+			    _current_state = ProcessMessageResult::COMPLETE;
+			    break;
+		    }
+		    case ProcessMessageResult::ERROR:
+		    default: {
+
+			    if (_message_logging_subscription) {
+				    Logging::MessageLogging message_logging{};
+
+				    message_logging.log_level = Logging::MessageLogging::LogLevel::DEBUG;
+
+				    message_logging.timestamp = first_message_offset;
+				    std::ostringstream os;
+				    os << "ERROR: " << "all.size = " << _current_logging_data.size() << ", fmo = " << unsigned(first_message_offset) << '\0';
+				    std::string s = os.str();
+				    message_logging.data.assign(s.begin(), s.end());
+
+				    auto callback = _message_logging_subscription;
+				    auto arg = message_logging;
+				    _parent->call_user_callback([callback, arg]() { callback(arg); });
+			    }
+
+			    _current_logging_data.erase(_current_logging_data.begin(), _current_logging_data.end() - offs);
+			    _curr_offs = 0;
+			    if (offs != 0) {
+				    _current_state = ProcessMessageResult::COMPLETE;
+			    }
+			    offs = 0;
+			    break;
+		    }
+	    }
+    } while (_curr_offs != 0);
 }
 
 void LoggingImpl::message_flag_bits_async(Logging::message_flag_bits_callback_t& callback)
@@ -394,10 +477,8 @@ void LoggingImpl::process_logging_data_acked(const mavlink_message_t& message)
 
     mavlink_message_t answer;
     mavlink_msg_logging_ack_pack(
-        // GCSClient::system_id,
-        0, // FixMe
-        // GCSClient::component_id,
-        0, // FixMe
+        _parent->get_own_system_id(),
+        _parent->get_own_component_id(),
         &answer,
         _parent->get_system_id(),
         _parent->get_autopilot_id(),

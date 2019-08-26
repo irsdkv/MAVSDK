@@ -240,19 +240,19 @@ inline bool MessageLogging_LogLevel_Parse(
     MessageLogging_LogLevel_descriptor(), name, value);
 }
 enum LoggingResult_Result : int {
-  LoggingResult_Result_UNKNOWN = 0,
-  LoggingResult_Result_SUCCESS = 1,
-  LoggingResult_Result_NO_SYSTEM = 2,
-  LoggingResult_Result_CONNECTION_ERROR = 3,
-  LoggingResult_Result_BUSY = 4,
-  LoggingResult_Result_COMMAND_DENIED = 5,
-  LoggingResult_Result_TIMEOUT = 8,
+  LoggingResult_Result_SUCCESS = 0,
+  LoggingResult_Result_NO_SYSTEM = 1,
+  LoggingResult_Result_CONNECTION_ERROR = 2,
+  LoggingResult_Result_BUSY = 3,
+  LoggingResult_Result_COMMAND_DENIED = 4,
+  LoggingResult_Result_TIMEOUT = 5,
+  LoggingResult_Result_UNKNOWN = 6,
   LoggingResult_Result_LoggingResult_Result_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
   LoggingResult_Result_LoggingResult_Result_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
 };
 bool LoggingResult_Result_IsValid(int value);
-constexpr LoggingResult_Result LoggingResult_Result_Result_MIN = LoggingResult_Result_UNKNOWN;
-constexpr LoggingResult_Result LoggingResult_Result_Result_MAX = LoggingResult_Result_TIMEOUT;
+constexpr LoggingResult_Result LoggingResult_Result_Result_MIN = LoggingResult_Result_SUCCESS;
+constexpr LoggingResult_Result LoggingResult_Result_Result_MAX = LoggingResult_Result_UNKNOWN;
 constexpr int LoggingResult_Result_Result_ARRAYSIZE = LoggingResult_Result_Result_MAX + 1;
 
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* LoggingResult_Result_descriptor();
@@ -4982,8 +4982,6 @@ class LoggingResult :
   // nested types ----------------------------------------------------
 
   typedef LoggingResult_Result Result;
-  static constexpr Result UNKNOWN =
-    LoggingResult_Result_UNKNOWN;
   static constexpr Result SUCCESS =
     LoggingResult_Result_SUCCESS;
   static constexpr Result NO_SYSTEM =
@@ -4996,6 +4994,8 @@ class LoggingResult :
     LoggingResult_Result_COMMAND_DENIED;
   static constexpr Result TIMEOUT =
     LoggingResult_Result_TIMEOUT;
+  static constexpr Result UNKNOWN =
+    LoggingResult_Result_UNKNOWN;
   static inline bool Result_IsValid(int value) {
     return LoggingResult_Result_IsValid(value);
   }

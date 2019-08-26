@@ -1023,10 +1023,10 @@ const char descriptor_table_protodef_logging_2flogging_2eproto[] PROTOBUF_SECTIO
   "essageDropout\"\"\n\016MessageDropout\022\020\n\010durat"
   "ion\030\001 \001(\r\"\321\001\n\rLoggingResult\0228\n\006result\030\001 "
   "\001(\0162(.mavsdk.rpc.logging.LoggingResult.R"
-  "esult\022\022\n\nresult_str\030\002 \001(\t\"r\n\006Result\022\013\n\007U"
-  "NKNOWN\020\000\022\013\n\007SUCCESS\020\001\022\r\n\tNO_SYSTEM\020\002\022\024\n\020"
-  "CONNECTION_ERROR\020\003\022\010\n\004BUSY\020\004\022\022\n\016COMMAND_"
-  "DENIED\020\005\022\013\n\007TIMEOUT\020\0102\352\013\n\016LoggingService"
+  "esult\022\022\n\nresult_str\030\002 \001(\t\"r\n\006Result\022\013\n\007S"
+  "UCCESS\020\000\022\r\n\tNO_SYSTEM\020\001\022\024\n\020CONNECTION_ER"
+  "ROR\020\002\022\010\n\004BUSY\020\003\022\022\n\016COMMAND_DENIED\020\004\022\013\n\007T"
+  "IMEOUT\020\005\022\013\n\007UNKNOWN\020\0062\352\013\n\016LoggingService"
   "\022c\n\014StartLogging\022\'.mavsdk.rpc.logging.St"
   "artLoggingRequest\032(.mavsdk.rpc.logging.S"
   "tartLoggingResponse\"\000\022`\n\013StopLogging\022&.m"
@@ -1167,7 +1167,7 @@ bool LoggingResult_Result_IsValid(int value) {
     case 3:
     case 4:
     case 5:
-    case 8:
+    case 6:
       return true;
     default:
       return false;
@@ -1175,13 +1175,13 @@ bool LoggingResult_Result_IsValid(int value) {
 }
 
 #if (__cplusplus < 201703) && (!defined(_MSC_VER) || _MSC_VER >= 1900)
-constexpr LoggingResult_Result LoggingResult::UNKNOWN;
 constexpr LoggingResult_Result LoggingResult::SUCCESS;
 constexpr LoggingResult_Result LoggingResult::NO_SYSTEM;
 constexpr LoggingResult_Result LoggingResult::CONNECTION_ERROR;
 constexpr LoggingResult_Result LoggingResult::BUSY;
 constexpr LoggingResult_Result LoggingResult::COMMAND_DENIED;
 constexpr LoggingResult_Result LoggingResult::TIMEOUT;
+constexpr LoggingResult_Result LoggingResult::UNKNOWN;
 constexpr LoggingResult_Result LoggingResult::Result_MIN;
 constexpr LoggingResult_Result LoggingResult::Result_MAX;
 constexpr int LoggingResult::Result_ARRAYSIZE;
