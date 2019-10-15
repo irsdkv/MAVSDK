@@ -19,6 +19,7 @@ add_subdirectory(param)
 add_subdirectory(telemetry)
 add_subdirectory(geofence)
 add_subdirectory(mocap)
+add_subdirectory(shell)
 
 if (ENABLE_MAVLINK_PASSTHROUGH)
     message(STATUS "Include MAVLink passthrough plugin")
