@@ -10,7 +10,7 @@ third_party_dir="${script_dir}/../build/default/third_party"
 protoc_binary="${third_party_dir}/install/bin/protoc"
 protoc_grpc_binary="${third_party_dir}/install/bin/grpc_cpp_plugin"
 
-command -v ${protoc_binary} && command -v ${protoc_grpc_binary} || {
+command -v ${protoc_binary} && command -v ${protoc_grpc_binary} || { 
     echo "-------------------------------"
     echo " Error"
     echo "-------------------------------"
