@@ -8,6 +8,7 @@
 namespace mavsdk {
 
 using std::chrono::steady_clock;
+using std::chrono::system_clock;
 
 Time::Time() {}
 Time::~Time() {}

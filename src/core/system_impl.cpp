@@ -327,6 +327,7 @@ void SystemImpl::system_thread()
         _timeout_handler.run_once();
         _params.do_work();
         _commands.do_work();
+        _timesync.do_work();
 
         if (_connected) {
             // Work fairly fast if we're connected.

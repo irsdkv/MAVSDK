@@ -45,9 +45,20 @@ public:
     }
 
     template<typename T>
+    inline T get_system_time_since_epoch() {
+        return std::chrono::duration_cast<T>(std::chrono::system_clock::now().time_since_epoch());
+    }
+
+    template<typename T>
     inline T get_fcu_time(T local_time) {
         std::lock_guard<std::mutex> lock(_fcu_system_time_offset_mutex);
         return local_time + std::chrono::duration_cast<T>(_fcu_system_time_offset);
+    }
+
+    template<typename T>
+    inline T get_fcu_time() {
+        std::lock_guard<std::mutex> lock(_fcu_system_time_offset_mutex);
+        return get_system_time_since_epoch<T>() + std::chrono::duration_cast<T>(_fcu_system_time_offset);
     }
 
 
