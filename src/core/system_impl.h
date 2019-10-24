@@ -187,6 +187,7 @@ public:
     bool is_connected() const;
 
     Time& get_time() { return _time; };
+    FCUTime& get_fcu_time() { return _fcu_time; };
 
     void register_plugin(PluginImplBase* plugin_impl);
     void unregister_plugin(PluginImplBase* plugin_impl);
@@ -293,6 +294,7 @@ private:
     CallEveryHandler _call_every_handler;
 
     Time _time{};
+    FCUTime _fcu_time{};
 
     std::mutex _plugin_impls_mutex{};
     std::vector<PluginImplBase*> _plugin_impls{};

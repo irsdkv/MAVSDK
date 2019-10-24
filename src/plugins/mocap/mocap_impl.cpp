@@ -84,9 +84,9 @@ bool MocapImpl::send_vision_position_estimate()
     if (!vision_position_estimate.time_usec) {
         fcu_position_time = static_cast<uint64_t>(_parent->get_time().elapsed_s() * 1e6);
     } else {
-        fcu_position_time = _parent->get_time()
-                .get_fcu_time(std::chrono::microseconds(vision_position_estimate.time_usec))
-                .count();
+        fcu_position_time = _parent->get_fcu_time()
+                .time_in(std::chrono::microseconds(vision_position_estimate.time_usec))
+                .time_since_epoch().count();
     }
 
     mavlink_message_t message;
@@ -120,9 +120,9 @@ bool MocapImpl::send_attitude_position_mocap()
         fcu_position_time = static_cast<uint64_t>(_parent->get_time().elapsed_s() * 1e6);
     } else {
         attitude_position_mocap.time_usec =
-            _parent->get_time()
-                .get_fcu_time(std::chrono::microseconds(attitude_position_mocap.time_usec))
-                .count();
+            _parent->get_fcu_time()
+                .time_in(std::chrono::microseconds(attitude_position_mocap.time_usec))
+                .time_since_epoch().count();
     }
     mavlink_message_t message;
 
@@ -158,7 +158,7 @@ bool MocapImpl::send_odometry()
         fcu_odometry_time = static_cast<uint64_t>(_parent->get_time().elapsed_s() * 1e6);
     } else {
         fcu_odometry_time =
-            _parent->get_time().get_fcu_time(std::chrono::microseconds(odometry.time_usec)).count();
+            _parent->get_fcu_time().time_in(std::chrono::microseconds(odometry.time_usec)).time_since_epoch().count();
     }
     mavlink_message_t message;
 

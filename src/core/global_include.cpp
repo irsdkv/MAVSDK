@@ -18,6 +18,11 @@ dl_time_t Time::steady_time()
     return steady_clock::now();
 }
 
+dl_stime_t Time::system_time()
+{
+    return system_clock::now();
+}
+
 double Time::elapsed_s()
 {
     auto now = steady_time().time_since_epoch();
@@ -157,6 +162,14 @@ bool are_equal(float one, float two)
 bool are_equal(double one, double two)
 {
     return (std::fabs(one - two) < std::numeric_limits<double>::epsilon());
+}
+
+FCUTime::FCUTime() {}
+FCUTime::~FCUTime() {}
+
+dl_stime_t FCUTime::system_time()
+{
+    return system_clock::now();
 }
 
 } // namespace mavsdk

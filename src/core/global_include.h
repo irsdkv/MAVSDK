@@ -26,6 +26,8 @@ constexpr float M_PI_F = float(M_PI);
 namespace mavsdk {
 
 typedef std::chrono::time_point<std::chrono::steady_clock> dl_time_t;
+typedef std::chrono::time_point<std::chrono::system_clock> dl_stime_t;
+typedef std::chrono::time_point<std::chrono::system_clock> dl_fcu_time_t;
 
 class Time {
 public:
@@ -33,33 +35,11 @@ public:
     virtual ~Time();
 
     virtual dl_time_t steady_time();
+    virtual dl_stime_t system_time();
     double elapsed_s();
     double elapsed_since_s(const dl_time_t& since);
     dl_time_t steady_time_in_future(double duration_s);
     void shift_steady_time_by(dl_time_t& time, double offset_s);
-
-    template<typename T>
-    inline void set_fcu_time_offset(T offset) {
-        std::lock_guard<std::mutex> lock(_fcu_system_time_offset_mutex);
-        _fcu_system_time_offset = std::chrono::duration_cast<std::chrono::nanoseconds>(offset);
-    }
-
-    template<typename T>
-    inline T get_system_time_since_epoch() {
-        return std::chrono::duration_cast<T>(std::chrono::system_clock::now().time_since_epoch());
-    }
-
-    template<typename T>
-    inline T get_fcu_time(T local_time) {
-        std::lock_guard<std::mutex> lock(_fcu_system_time_offset_mutex);
-        return local_time + std::chrono::duration_cast<T>(_fcu_system_time_offset);
-    }
-
-    template<typename T>
-    inline T get_fcu_time() {
-        std::lock_guard<std::mutex> lock(_fcu_system_time_offset_mutex);
-        return get_system_time_since_epoch<T>() + std::chrono::duration_cast<T>(_fcu_system_time_offset);
-    }
 
 
     virtual void sleep_for(std::chrono::hours h);
@@ -68,10 +48,6 @@ public:
     virtual void sleep_for(std::chrono::milliseconds ms);
     virtual void sleep_for(std::chrono::microseconds us);
     virtual void sleep_for(std::chrono::nanoseconds ns);
-
-private:
-    mutable std::mutex _fcu_system_time_offset_mutex{};
-    std::chrono::nanoseconds _fcu_system_time_offset{};
 };
 
 class FakeTime : public Time {
@@ -90,6 +66,37 @@ public:
 private:
     std::chrono::time_point<std::chrono::steady_clock, std::chrono::nanoseconds> _current{};
     void add_overhead();
+};
+
+class FCUTime
+{
+public:
+    FCUTime();
+    virtual ~FCUTime();
+
+    dl_fcu_time_t now()
+    {
+        std::lock_guard<std::mutex> lock(_fcu_system_time_offset_mutex);
+        return dl_fcu_time_t(system_time() + _fcu_time_offset);
+    }
+
+    template<typename T>
+    void shift_fcu_time_by(T offset) {
+        std::lock_guard<std::mutex> lock(_fcu_system_time_offset_mutex);
+        _fcu_time_offset = std::chrono::duration_cast<std::chrono::nanoseconds>(offset);
+    };
+
+    template<typename T>
+    inline dl_fcu_time_t time_in(T local_system_time) {
+        std::lock_guard<std::mutex> lock(_fcu_system_time_offset_mutex);
+        return dl_fcu_time_t(local_system_time + std::chrono::duration_cast<T>(_fcu_time_offset));
+    };
+
+private:
+    mutable std::mutex _fcu_system_time_offset_mutex{};
+    std::chrono::nanoseconds _fcu_time_offset{};
+
+    virtual dl_stime_t system_time();
 };
 
 double to_rad_from_deg(double deg);
