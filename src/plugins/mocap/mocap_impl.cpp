@@ -75,13 +75,18 @@ Mocap::Result MocapImpl::set_odometry(const Mocap::Odometry& odometry)
 
 bool MocapImpl::send_vision_position_estimate()
 {
+    uint64_t fcu_position_time{};
+
     _visual_position_estimate_mutex.lock();
     auto vision_position_estimate = _vision_position_estimate;
     _visual_position_estimate_mutex.unlock();
 
     if (!vision_position_estimate.time_usec) {
-        vision_position_estimate.time_usec =
-            static_cast<uint64_t>(_parent->get_time().elapsed_s() * 1e3);
+        fcu_position_time = static_cast<uint64_t>(_parent->get_time().elapsed_s() * 1e6);
+    } else {
+        fcu_position_time = _parent->get_time()
+                .get_fcu_time(std::chrono::microseconds(vision_position_estimate.time_usec))
+                .count();
     }
 
     mavlink_message_t message;
@@ -90,7 +95,7 @@ bool MocapImpl::send_vision_position_estimate()
         _parent->get_own_system_id(),
         _parent->get_own_component_id(),
         &message,
-        vision_position_estimate.time_usec,
+        fcu_position_time,
         vision_position_estimate.position_body.x_m,
         vision_position_estimate.position_body.y_m,
         vision_position_estimate.position_body.z_m,
@@ -105,13 +110,19 @@ bool MocapImpl::send_vision_position_estimate()
 
 bool MocapImpl::send_attitude_position_mocap()
 {
+    uint64_t fcu_position_time{};
+
     _attitude_position_mocap_mutex.lock();
     auto attitude_position_mocap = _attitude_position_mocap;
     _attitude_position_mocap_mutex.unlock();
 
     if (!attitude_position_mocap.time_usec) {
+        fcu_position_time = static_cast<uint64_t>(_parent->get_time().elapsed_s() * 1e6);
+    } else {
         attitude_position_mocap.time_usec =
-            static_cast<uint64_t>(_parent->get_time().elapsed_s() * 1e3);
+            _parent->get_time()
+                .get_fcu_time(std::chrono::microseconds(attitude_position_mocap.time_usec))
+                .count();
     }
     mavlink_message_t message;
 
@@ -125,7 +136,7 @@ bool MocapImpl::send_attitude_position_mocap()
         _parent->get_own_system_id(),
         _parent->get_own_component_id(),
         &message,
-        attitude_position_mocap.time_usec,
+        fcu_position_time,
         q.data(),
         attitude_position_mocap.position_body.x_m,
         attitude_position_mocap.position_body.y_m,
@@ -137,12 +148,17 @@ bool MocapImpl::send_attitude_position_mocap()
 
 bool MocapImpl::send_odometry()
 {
+    uint64_t fcu_odometry_time{};
+
     _odometry_mutex.lock();
     auto odometry = _odometry;
     _odometry_mutex.unlock();
 
     if (!odometry.time_usec) {
-        odometry.time_usec = static_cast<uint64_t>(_parent->get_time().elapsed_s() * 1e3);
+        fcu_odometry_time = static_cast<uint64_t>(_parent->get_time().elapsed_s() * 1e6);
+    } else {
+        fcu_odometry_time =
+            _parent->get_time().get_fcu_time(std::chrono::microseconds(odometry.time_usec)).count();
     }
     mavlink_message_t message;
 
@@ -156,7 +172,7 @@ bool MocapImpl::send_odometry()
         _parent->get_own_system_id(),
         _parent->get_own_component_id(),
         &message,
-        odometry.time_usec,
+        fcu_odometry_time,
         static_cast<uint8_t>(odometry.frame_id),
         static_cast<uint8_t>(MAV_FRAME_BODY_FRD),
         odometry.position_body.x_m,
