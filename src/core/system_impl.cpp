@@ -21,6 +21,7 @@ SystemImpl::SystemImpl(MavsdkImpl& parent, uint8_t system_id, uint8_t comp_id, b
     _parent(parent),
     _params(*this),
     _commands(*this),
+    _timesync(*this),
     _timeout_handler(_time),
     _call_every_handler(_time)
 {

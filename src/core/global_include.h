@@ -4,6 +4,7 @@
 
 #include <chrono>
 #include <thread>
+#include <mutex>
 
 // Instead of using the constant from math.h or cmath we define it ourselves. This way
 // we don't import all the other C math functions and make sure to use the C++ functions
@@ -37,12 +38,29 @@ public:
     dl_time_t steady_time_in_future(double duration_s);
     void shift_steady_time_by(dl_time_t& time, double offset_s);
 
+    template<typename T>
+    inline void set_fcu_time_offset(T offset) {
+        std::lock_guard<std::mutex> lock(_fcu_system_time_offset_mutex);
+        _fcu_system_time_offset = std::chrono::duration_cast<std::chrono::nanoseconds>(offset);
+    }
+
+    template<typename T>
+    inline T get_fcu_time(T local_time) {
+        std::lock_guard<std::mutex> lock(_fcu_system_time_offset_mutex);
+        return local_time + std::chrono::duration_cast<T>(_fcu_system_time_offset);
+    }
+
+
     virtual void sleep_for(std::chrono::hours h);
     virtual void sleep_for(std::chrono::minutes m);
     virtual void sleep_for(std::chrono::seconds s);
     virtual void sleep_for(std::chrono::milliseconds ms);
     virtual void sleep_for(std::chrono::microseconds us);
     virtual void sleep_for(std::chrono::nanoseconds ns);
+
+private:
+    mutable std::mutex _fcu_system_time_offset_mutex{};
+    std::chrono::nanoseconds _fcu_system_time_offset{};
 };
 
 class FakeTime : public Time {

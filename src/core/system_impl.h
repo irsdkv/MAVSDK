@@ -4,6 +4,7 @@
 #include "mavlink_include.h"
 #include "mavlink_parameters.h"
 #include "mavlink_commands.h"
+#include "timesync.h"
 #include "timeout_handler.h"
 #include "call_every_handler.h"
 #include "thread_pool.h"
@@ -285,6 +286,8 @@ private:
     MAVLinkParameters _params;
 
     MAVLinkCommands _commands;
+
+    Timesync _timesync;
 
     TimeoutHandler _timeout_handler;
     CallEveryHandler _call_every_handler;
