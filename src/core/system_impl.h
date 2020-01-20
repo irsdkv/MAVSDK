@@ -41,7 +41,7 @@ public:
     };
 
     explicit SystemImpl(
-        MavsdkImpl& parent, uint8_t system_id, uint8_t component_id, bool connected);
+        MavsdkImpl& parent, uint8_t system_id, uint8_t component_id, bool connected, bool enable_timesync);
     ~SystemImpl();
 
     void process_mavlink_message(mavlink_message_t& message);

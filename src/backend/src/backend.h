@@ -8,7 +8,7 @@ namespace backend {
 
 class MavsdkBackend {
 public:
-    MavsdkBackend();
+    MavsdkBackend(bool enable_timesync);
     ~MavsdkBackend();
     MavsdkBackend(MavsdkBackend&&) = delete;
     MavsdkBackend& operator=(MavsdkBackend&&) = delete;

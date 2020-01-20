@@ -6,7 +6,7 @@
 
 namespace mavsdk {
 
-Timesync::Timesync(SystemImpl& parent) : _parent(parent)
+Timesync::Timesync(SystemImpl& parent, bool enable_timesync) : _parent(parent), _timesync_enable(enable_timesync)
 {
     using namespace std::placeholders; // for `_1`
 
@@ -21,7 +21,7 @@ Timesync::~Timesync()
 
 void Timesync::do_work()
 {
-    if (_parent.get_time().elapsed_since_s(_last_time) >= _TIMESYNC_SEND_INTERVAL_S) {
+    if (_timesync_enable && _parent.get_time().elapsed_since_s(_last_time) >= _TIMESYNC_SEND_INTERVAL_S) {
         if (_parent.is_connected()) {
             uint64_t now_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
                                   _parent.get_autopilot_time().now().time_since_epoch())

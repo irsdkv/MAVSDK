@@ -14,7 +14,7 @@ namespace mavsdk {
 
 class MavsdkImpl {
 public:
-    MavsdkImpl();
+    MavsdkImpl(bool enable_timesync);
     ~MavsdkImpl();
 
     std::string version() const;
@@ -69,6 +69,8 @@ private:
     bool _is_single_system{false};
 
     std::atomic<bool> _should_exit = {false};
+
+    bool _timesync_enable{false};
 };
 
 } // namespace mavsdk

@@ -36,8 +36,9 @@ public:
 
     /**
      * @brief Constructor.
+     * @param enable_timesync enable time synchronisation with Autopilot.
      */
-    Mavsdk();
+    Mavsdk(bool enable_timesync = false);
 
     /**
      * @brief Destructor.

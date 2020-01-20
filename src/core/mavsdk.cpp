@@ -5,7 +5,7 @@
 
 namespace mavsdk {
 
-Mavsdk::Mavsdk() : _impl{new MavsdkImpl()} {}
+Mavsdk::Mavsdk(bool enable_timesync) : _impl{new MavsdkImpl(enable_timesync)} {}
 
 Mavsdk::~Mavsdk() {}
 

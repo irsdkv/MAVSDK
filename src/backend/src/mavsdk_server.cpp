@@ -6,6 +6,7 @@
 
 static auto constexpr default_connection = "udp://:14540";
 static auto default_mavsdk_server_port = 0;
+static auto default_enable_timesync = false;
 
 static void usage();
 static bool is_integer(const std::string& tested_integer);
@@ -14,6 +15,7 @@ int main(int argc, char** argv)
 {
     std::string connection_url = default_connection;
     int mavsdk_server_port = default_mavsdk_server_port;
+    bool enable_timesync = default_enable_timesync;
 
     for (int i = 1; i < argc; i++) {
         const std::string current_arg = argv[i];
@@ -36,12 +38,15 @@ int main(int argc, char** argv)
             }
 
             mavsdk_server_port = std::stoi(port);
-        } else {
+        } else if (current_arg == "--timesync") {
+            enable_timesync = true;
+        } else
+            {
             connection_url = current_arg;
         }
     }
 
-    runBackend(connection_url.c_str(), mavsdk_server_port, nullptr, nullptr);
+    runBackend(connection_url.c_str(), mavsdk_server_port, nullptr, nullptr, enable_timesync);
 }
 
 void usage()
@@ -58,7 +63,8 @@ void usage()
               << std::endl
               << "Options:" << std::endl
               << "  -h | --help : show this help" << std::endl
-              << "  -p          : set the port on which to run the gRPC server" << std::endl;
+              << "  -p          : set the port on which to run the gRPC server" << std::endl
+              << "  --timesync  : enable time synchronisation with Autopilot" << std::endl;
 }
 
 bool is_integer(const std::string& tested_integer) {

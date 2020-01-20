@@ -14,13 +14,14 @@
 
 namespace mavsdk {
 
-MavsdkImpl::MavsdkImpl() :
+MavsdkImpl::MavsdkImpl(bool enable_timesync) :
     _connections_mutex(),
     _connections(),
     _systems_mutex(),
     _systems(),
     _on_discover_callback(nullptr),
-    _on_timeout_callback(nullptr)
+    _on_timeout_callback(nullptr),
+    _timesync_enable(enable_timesync)
 {
     LogInfo() << "MAVSDK version: " << mavsdk_version;
 }
@@ -400,7 +401,7 @@ void MavsdkImpl::make_system_with_component(uint8_t system_id, uint8_t comp_id)
 
     LogDebug() << "New: System ID: " << int(system_id) << " Comp ID: " << int(comp_id);
     // Make a system with its first component
-    auto new_system = std::make_shared<System>(*this, system_id, comp_id, _is_single_system);
+    auto new_system = std::make_shared<System>(*this, system_id, comp_id, _is_single_system, _timesync_enable);
 
     _systems.insert(system_entry_t(system_id, new_system));
 }

@@ -11,7 +11,7 @@ namespace backend {
 
 class MavsdkBackend::Impl {
 public:
-    Impl() {}
+    Impl(bool enable_timesync) : _dc(enable_timesync) {}
     ~Impl() {}
 
     void connect(const std::string& connection_url)
@@ -35,7 +35,7 @@ private:
     std::unique_ptr<GRPCServer> _server;
 };
 
-MavsdkBackend::MavsdkBackend() : _impl(new Impl()) {}
+MavsdkBackend::MavsdkBackend(bool enable_timesync) : _impl(new Impl(enable_timesync)) {}
 MavsdkBackend::~MavsdkBackend() = default;
 
 int MavsdkBackend::startGRPCServer(const int port)

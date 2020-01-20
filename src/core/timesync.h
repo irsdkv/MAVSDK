@@ -9,8 +9,11 @@ class SystemImpl;
 
 class Timesync {
 public:
-    Timesync(SystemImpl& parent);
+    Timesync(SystemImpl& parent, bool enable_timesync);
     ~Timesync();
+
+    bool timesync_enabled() { return _timesync_enable; }
+    void enable_timesync(bool enable) { _timesync_enable = enable; }
 
     void do_work();
 
@@ -30,5 +33,7 @@ private:
     static constexpr uint64_t _MAX_CONS_HIGH_RTT = 5;
     static constexpr uint64_t _MAX_RTT_SAMPLE_MS = 10;
     uint64_t _high_rtt_count{};
+
+    bool _timesync_enable;
 };
 } // namespace mavsdk

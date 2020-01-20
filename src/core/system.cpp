@@ -15,8 +15,8 @@ namespace mavsdk {
 
 using namespace std::placeholders; // for `_1`
 
-System::System(MavsdkImpl& parent, uint8_t system_id, uint8_t component_id, bool connected) :
-    _system_impl(std::make_shared<SystemImpl>(parent, system_id, component_id, connected))
+System::System(MavsdkImpl& parent, uint8_t system_id, uint8_t component_id, bool connected, bool enable_timesync) :
+    _system_impl(std::make_shared<SystemImpl>(parent, system_id, component_id, connected, enable_timesync))
 {}
 
 System::~System() {}

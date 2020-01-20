@@ -37,9 +37,10 @@ public:
      * @param system_id System id.
      * @param comp_id Component id.
      * @param connected If true then the system doesn't wait for heartbeat to go into connected
+     * @param enable_timesync enable time synchronisation with Autopilot.
      * state
      */
-    explicit System(MavsdkImpl& parent, uint8_t system_id, uint8_t comp_id, bool connected);
+    explicit System(MavsdkImpl& parent, uint8_t system_id, uint8_t comp_id, bool connected, bool enable_timesync);
     /**
      * @brief Destructor.
      */
